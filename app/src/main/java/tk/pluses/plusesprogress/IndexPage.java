@@ -5,10 +5,11 @@ import android.os.Bundle;
 
 public class IndexPage extends AppCompatActivity {
 
-    @Override
+    @Override//qweqweqweqe
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_index_page);
+
     }
 
 }
