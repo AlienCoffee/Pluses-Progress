@@ -2,6 +2,7 @@ package tk.pluses.plusesprogress;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 public class IndexPage extends AppCompatActivity {
 
@@ -12,4 +13,15 @@ public class IndexPage extends AppCompatActivity {
 
     }
 
+    public static void login(View view){
+
+    }
+
+    public static void register(View view){
+
+    }
+
+    public static void loginGuest(View view){
+
+    }
 }
