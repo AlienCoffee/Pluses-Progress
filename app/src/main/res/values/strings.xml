@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Pluses Progress</string>
-    <string name="login_hint">Login</string>
+    <string name="login_hint">Phone number</string>
     <string name="password_hint">Password</string>
+    <string name="login_button">Log in</string>
+    <string name="_register">Register</string>
+    <string name="login_guest_button">Guest login</string>
+    <string name="_phone_number">Phone number</string>
+    <string name="register_phone">Phone number without country code (i.e. 9171234567)</string>
 </resources>
