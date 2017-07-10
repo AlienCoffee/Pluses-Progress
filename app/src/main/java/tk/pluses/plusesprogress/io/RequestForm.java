@@ -10,12 +10,12 @@ import cz.msebera.android.httpclient.message.BasicNameValuePair;
 public class RequestForm implements Serializable {
 
     /**
-     *
+     * String adress where to send a request.
      * */
     public final String HOST;
 
     /**
-     *
+     *  List of fields that need to be sent with request.
      * */
     private final List <NameValuePair> PARAMS;
 
@@ -28,11 +28,21 @@ public class RequestForm implements Serializable {
         this.PARAMS = new ArrayList <> ();
     }
 
+    /**
+     * Adds new field in request body.
+     *
+     * If key is null then adding will be ignored
+     * */
     public void addParam (String key, String value) {
         if (key == null) { return; }
         PARAMS.add (new BasicNameValuePair (key, value));
     }
 
+    /**
+     * Removes field from request body.
+     *
+     * If key is null then removing will be ignored
+     * */
     public void removeParam (String key) {
         if (key == null) { return; }
 
@@ -49,6 +59,12 @@ public class RequestForm implements Serializable {
         if (index != -1) { PARAMS.remove (index); }
     }
 
+    /**
+     * Returns params that are in request body.
+     *
+     * Will be returned copy of original list
+     * that it can't be changed from outside
+     * */
     public List <NameValuePair> getParams () {
         return new ArrayList <> (PARAMS);
     }

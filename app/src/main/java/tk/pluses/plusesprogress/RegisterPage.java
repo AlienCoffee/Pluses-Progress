@@ -18,6 +18,8 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_page);
 
+        // Sending request to the server
+        // It can be called in each click on button (f. e.)
         click ();
     }
 
@@ -33,14 +35,24 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished (Loader <RequestResult> loader, RequestResult data) {
+        // This method will be called when answer of error received
+        // First argument is not important (not need to use)
+        // Second argument is object that represents answer from server
+        // (How to use it, read in sources)
         Log.i ("RegPage", "" + data.CODE);
     }
 
     public void click () {
+        // Making new request form
         RequestForm form = new RequestForm ("http://pluses.tk/");
+        // Here can be adding of arguments like:
+        // form.addParam ("key", "value");
 
+        // Default tuple for calling constructor
         Bundle args = new Bundle ();
+        // Adding our form to request builder
         args.putSerializable ("form", form);
+        // Tell android to send new request right now
         getSupportLoaderManager ().restartLoader (0, args, this);
     }
 
