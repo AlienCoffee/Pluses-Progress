@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class RequestResult implements Serializable {
 
+    public final String TYPE;
+
     /**
      * Response code of request.
      *
@@ -27,6 +29,7 @@ public class RequestResult implements Serializable {
     private Map <String, String> FIELDS;
 
     public RequestResult (int code, String host, Map <String, String> fields) {
+        this.TYPE = fields.get ("type");
         this.CODE = code;
         this.HOST = host;
         this.FIELDS = new HashMap <> (fields);
