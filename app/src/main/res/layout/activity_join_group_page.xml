@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="tk.pluses.plusesprogress.JoinGroupPage">
+
+    <EditText
+        android:id="@+id/inviteCodeField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="phone"
+        android:hint="Invite code"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="64dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"/>
+
+    <Button
+        android:id="@+id/joinGroupButton"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:text="Join group"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/inviteCodeField"
+        app:layout_constraintRight_toRightOf="@id/inviteCodeField"
+        app:layout_constraintTop_toBottomOf="@id/inviteCodeField"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1" />
+
+    <TextView
+        android:id="@+id/answerMessageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginTop="7dp"
+        android:padding="2dp"
+        android:ems="15"
+        android:textSize="15sp"
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="@id/joinGroupButton"
+        app:layout_constraintRight_toRightOf="@id/joinGroupButton"
+        app:layout_constraintTop_toBottomOf="@id/joinGroupButton"/>
+
+</android.support.constraint.ConstraintLayout>
