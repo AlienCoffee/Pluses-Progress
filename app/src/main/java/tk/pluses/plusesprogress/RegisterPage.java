@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
+import tk.pluses.plusesprogress.user.UserEntity;
 
 public class RegisterPage extends AppCompatActivity implements LoaderManager.LoaderCallbacks <RequestResult> {
 
@@ -42,6 +43,13 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
         phoneField      = (EditText) findViewById (R.id.phoneField);
         passwordField   = (EditText) findViewById (R.id.passwordField);
         inviteCodeFiled = (EditText) findViewById (R.id.inviteCodeField);
+    }
+
+    @Override
+    protected void onPause () {
+        super.onPause ();
+
+        UserEntity.storeInFile ();
     }
 
     @Override
