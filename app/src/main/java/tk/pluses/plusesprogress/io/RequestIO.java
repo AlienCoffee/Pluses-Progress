@@ -22,7 +22,7 @@ import cz.msebera.android.httpclient.client.entity.UrlEncodedFormEntity;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.impl.client.HttpClients;
 
-public class RequestIO extends AsyncTaskLoader<RequestResult> {
+public class RequestIO extends AsyncTaskLoader <RequestResult> {
 
     private final RequestForm FORM;
 

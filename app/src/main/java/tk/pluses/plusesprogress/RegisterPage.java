@@ -30,8 +30,8 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_page);
+        super.onCreate (savedInstanceState);
+        setContentView (R.layout.activity_register_page);
 
         registerButton = (Button) findViewById (R.id.registerButton);
         registerButton.setOnClickListener (new View.OnClickListener () {
