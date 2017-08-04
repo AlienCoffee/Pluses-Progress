@@ -13,7 +13,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import tk.pluses.plusesprogress.fragments.FragmentDiary;
+import tk.pluses.plusesprogress.fragments.FragmentAuth;
 
 public class IndexPage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -52,8 +52,8 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
 
         Log.i ("Index", "click");
         switch (item.getItemId ()) {
-            case (R.id.navigation_item_diary):
-                frClass = FragmentDiary.class;
+            case (R.id.navigation_item_auth):
+                frClass = FragmentAuth.class;
                 break;
         }
 

@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/LinearLayout1"
     android:orientation="vertical"
     tools:context=".IndexPage">
 
@@ -16,7 +17,7 @@
         <FrameLayout
             android:id="@+id/menu_frame_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <android.support.design.widget.NavigationView
             android:id="@+id/menu_navigation_view"
