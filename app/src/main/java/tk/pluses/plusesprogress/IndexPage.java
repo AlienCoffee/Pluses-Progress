@@ -31,19 +31,6 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         navigation.setNavigationItemSelectedListener (this);
     }
 
-    public static void login(View view){
-
-    }
-
-    public void register(View view){
-        Intent intent = new Intent(this, RegisterPage.class);
-        startActivity(intent);
-    }
-
-    public static void loginGuest(View view){
-
-    }
-
     @Override
     public boolean onNavigationItemSelected (@NonNull MenuItem item) {
         Fragment fragment = null;
