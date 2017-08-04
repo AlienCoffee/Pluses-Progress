@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,15 +33,15 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_page);
 
-        registerButton = (Button) findViewById (R.id.button2);
+        registerButton = (Button) findViewById (R.id.registerButton);
         registerButton.setOnClickListener (new View.OnClickListener () {
             public void onClick (View v) { register (v); }
         });
 
         answerMessage   = (TextView) findViewById (R.id.answerMessageView);
-        phoneField      = (EditText) findViewById (R.id.editText5);
-        passwordField   = (EditText) findViewById (R.id.editText6);
-        inviteCodeFiled = (EditText) findViewById (R.id.editText3);
+        phoneField      = (EditText) findViewById (R.id.phoneField);
+        passwordField   = (EditText) findViewById (R.id.passwordField);
+        inviteCodeFiled = (EditText) findViewById (R.id.inviteCodeField);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset (Loader <RequestResult> loader) {
-
+        registerButton.setEnabled (true);
     }
 
     @Override

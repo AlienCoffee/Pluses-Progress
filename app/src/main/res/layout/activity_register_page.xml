@@ -9,11 +9,12 @@
     tools:context="tk.pluses.plusesprogress.RegisterPage">
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/phoneField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="phone"
+        android:hint="Phone"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="64dp"
         android:layout_marginLeft="8dp"
@@ -24,38 +25,40 @@
         android:layout_marginEnd="8dp"/>
 
     <EditText
-        android:id="@+id/editText6"
+        android:id="@+id/passwordField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:inputType="textPassword"
-        app:layout_constraintTop_toBottomOf="@id/editText5"
-        app:layout_constraintLeft_toLeftOf="@id/editText5"
-        app:layout_constraintRight_toRightOf="@id/editText5" />
+        android:hint="Password"
+        app:layout_constraintTop_toBottomOf="@id/phoneField"
+        app:layout_constraintLeft_toLeftOf="@id/phoneField"
+        app:layout_constraintRight_toRightOf="@id/phoneField" />
 
     <EditText
-        android:id="@+id/editText3"
+        android:id="@+id/inviteCodeField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
         android:ems="10"
         android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/editText6"
-        app:layout_constraintLeft_toLeftOf="@id/editText6"
-        app:layout_constraintRight_toRightOf="@id/editText6" />
+        android:hint="Invite code (optional)"
+        app:layout_constraintTop_toBottomOf="@id/passwordField"
+        app:layout_constraintLeft_toLeftOf="@id/passwordField"
+        app:layout_constraintRight_toRightOf="@id/passwordField" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/registerButton"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:text="@string/_register"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textSize="20sp"
-        app:layout_constraintLeft_toLeftOf="@id/editText3"
-        app:layout_constraintRight_toRightOf="@id/editText3"
-        app:layout_constraintTop_toBottomOf="@id/editText3"
+        app:layout_constraintLeft_toLeftOf="@id/inviteCodeField"
+        app:layout_constraintRight_toRightOf="@id/inviteCodeField"
+        app:layout_constraintTop_toBottomOf="@id/inviteCodeField"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1" />
 
@@ -69,9 +72,9 @@
         android:ems="15"
         android:textSize="15sp"
         android:textAlignment="center"
-        app:layout_constraintLeft_toLeftOf="@id/button2"
-        app:layout_constraintRight_toRightOf="@id/button2"
-        app:layout_constraintTop_toBottomOf="@id/button2"
+        app:layout_constraintLeft_toLeftOf="@id/registerButton"
+        app:layout_constraintRight_toRightOf="@id/registerButton"
+        app:layout_constraintTop_toBottomOf="@id/registerButton"
         />
 
 </android.support.constraint.ConstraintLayout>
