@@ -2,7 +2,6 @@ package tk.pluses.plusesprogress.fragments;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -10,14 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import tk.pluses.plusesprogress.JoinGroupPage;
 import tk.pluses.plusesprogress.R;
-import tk.pluses.plusesprogress.RegisterPage;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
