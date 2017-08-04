@@ -130,6 +130,7 @@ public class FragmentAuth extends Fragment implements LoaderManager.LoaderCallba
                         UserEntity.setProperty (key, json.getString (key));
                     }
                 } catch (JSONException jsone) {}
+                UserEntity.storeInFile ();
             }
         }
         loginButton.setEnabled (true);

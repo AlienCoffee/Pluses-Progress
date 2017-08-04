@@ -52,4 +52,33 @@ public class UserEntity {
         data.put (key, value);
     }
 
+    public static void loadFromFile () {
+        if (!preferences.contains ("keys")) {
+            return;
+        }
+
+        String keys = preferences.getString ("keys", "");
+        String [] keysArray = keys.split (",");
+
+        for (String key: keysArray) { setProperty (key, preferences.getString (key, "")); }
+        Log.i ("UserEntity", "Loaded " + keysArray.length + " properties");
+    }
+
+    public static void storeInFile () {
+        SharedPreferences.Editor editor = preferences.edit ();
+        StringBuilder sb = new StringBuilder ();
+
+        for (String key: data.keySet ()) {
+            editor.putString (key, data.get (key));
+            sb.append (key + ",");
+        }
+        if (sb.length () > 0) {
+            sb.deleteCharAt (sb.length () - 1);
+        }
+
+        Log.i ("UserEntity", sb.toString ());
+        editor.putString ("keys", sb.toString ());
+        editor.apply ();
+    }
+
 }
