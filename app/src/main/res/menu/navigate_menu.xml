@@ -7,8 +7,8 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/navigation_item_diary"
-            android:title="Diary" />
+            android:id="@+id/navigation_item_auth"
+            android:title="Auth" />
         <item
             android:id="@+id/navigation_item_results"
             android:title="Results" />
