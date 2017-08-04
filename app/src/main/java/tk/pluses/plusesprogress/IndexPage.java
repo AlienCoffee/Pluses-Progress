@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import tk.pluses.plusesprogress.fragments.FragmentAuth;
+import tk.pluses.plusesprogress.fragments.FragmentDiary;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
@@ -132,6 +133,9 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         switch (item.getItemId ()) {
             case (R.id.navigation_item_auth):
                 frClass = FragmentAuth.class;
+                break;
+            case (R.id.navigation_item_diary):
+                frClass = FragmentDiary.class;
                 break;
         }
 
