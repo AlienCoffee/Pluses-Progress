@@ -8,19 +8,37 @@
               tools:context="tk.pluses.plusesprogress.IndexPage">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Diary fragment" />
-
-    <TextView
         android:id="@+id/linkToJoinGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="12.5dp"
         android:layout_marginTop="12.5dp"
-        android:text="Register"
+        android:text="Join group"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@color/colorPrimary"
         android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/answerMessageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:padding="2dp"
+        android:ems="15"
+        android:textSize="15sp"
+        android:textAlignment="center"/>
+
+    <ProgressBar
+        android:id="@+id/loadingProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/groupsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
