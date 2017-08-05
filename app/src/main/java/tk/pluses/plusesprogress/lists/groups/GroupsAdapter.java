@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tk.pluses.plusesprogress.R;
 
@@ -19,14 +21,26 @@ import tk.pluses.plusesprogress.R;
 
 public class GroupsAdapter extends RecyclerView.Adapter {
 
+    private final Map <Integer, RecyclerView.ViewHolder> holders;
+
     private final List <GroupEntity> groupsList;
     private final LayoutInflater layoutInflater;
     private final Context context;
 
     public GroupsAdapter (Context context, List <GroupEntity> list) {
         this.layoutInflater = LayoutInflater.from (context);
-        this.groupsList = new ArrayList <> (list);
+        this.holders = new HashMap <> ();
+        this.groupsList = list;
         this.context = context;
+    }
+
+    public void updateItem (int position) {
+        GroupEntity groupEntity = groupsList.get (position);
+        GroupViewHolder customHolder = (GroupViewHolder) holders.get (position);
+        customHolder.groupTitle.setText (groupsList.get (position).getName ());
+        customHolder.groupTopicsValue.setText (groupsList.get (position).getTopicsNumber () + "");
+        customHolder.groupMembersValue.setText (groupsList.get (position).getGroupSize () + "");
+        customHolder.groupHeadTeacherValue.setText (groupsList.get (position).getHeadTeacherID () + "");
     }
 
     @Override
@@ -41,6 +55,8 @@ public class GroupsAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position) {
+        holders.put (position, holder);
+
         GroupEntity groupEntity = groupsList.get (position);
         GroupViewHolder customHolder = (GroupViewHolder) holder;
 

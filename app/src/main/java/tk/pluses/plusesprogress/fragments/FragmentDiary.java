@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +33,12 @@ import tk.pluses.plusesprogress.user.UserEntity;
 
 public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallbacks <RequestResult> {
 
-    String data[] = new String[] { "qwe", "qqq", "sss", "aaa" };
-
     private TextView answerMessage;
     private ProgressBar progressBar;
     private RecyclerView groupsRecycler;
 
     private List <GroupEntity> groupsList;
+    private int groupsDataLoaded = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,21 +121,66 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                 answerMessage.setTextColor (Color.RED);
             }
         } else if (data.TYPE.equals ("Success") && data.CODE == 1000) {
-            groupsList = new ArrayList <> ();
+            if (data.HOST.equals ("http://pluses.tk/api.users.getUserGroups")) {
+                groupsList = new ArrayList <> ();
+                groupsDataLoaded = 0;
 
-            try {
-                String groups = data.getField ("message");
-                JSONArray groupsArray = new JSONArray (groups);
-                int length = groupsArray.length ();
+                try {
+                    String groups = data.getField ("message");
+                    JSONArray groupsArray = new JSONArray (groups);
+                    int length = groupsArray.length ();
 
-                for (int i = 0; i < length; i ++) {
-                    groupsList.add (new GroupEntity (groupsArray.getInt (i)));
+                    for (int i = 0; i < length; i ++) {
+                        groupsList.add (new GroupEntity (groupsArray.getInt (i)));
+                    }
+
+                    groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
+                    GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
+                    groupsRecycler.setAdapter (adapter);
+                } catch (JSONException jsone) {
                 }
 
-                groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
-                GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
-                groupsRecycler.setAdapter (adapter);
-            } catch (JSONException jsone) {
+                if (groupsList.size () > 0) {
+                    RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupData");
+                    form.addParam ("token", UserEntity.getProperty ("token"));
+                    form.addParam ("group_id", groupsList.get (groupsDataLoaded).ID + "");
+
+                    Bundle args = new Bundle ();
+                    args.putSerializable ("form", form);
+                    getLoaderManager ().restartLoader (0, args, this);
+                }
+            } else if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupData")) {
+                Log.i (this.getClass ().getSimpleName (), "Data for group loaded: "
+                                                            + data.getField ("message"));
+                try {
+                    String message = data.getField ("message");
+                    JSONObject json = new JSONObject (message);
+
+                    GroupEntity entity = groupsList.get (groupsDataLoaded);
+                    entity.setName (json.getString ("name"));
+                    entity.setHeadTeacherID (json.getInt ("head_teacher"));
+
+                    JSONObject jsonList = new JSONObject (json.getString ("list"));
+                    entity.setGroupSize (jsonList.getInt ("size"));
+
+                    JSONObject jsonTopics = new JSONObject (json.getString ("topics"));
+                    entity.setTopicsNumber (jsonTopics.getInt ("size"));
+
+                    ((GroupsAdapter) groupsRecycler.getAdapter ()).updateItem (groupsDataLoaded);
+                } catch (JSONException jsone) {
+                    jsone.printStackTrace ();
+                }
+
+                groupsDataLoaded ++;
+                if (groupsDataLoaded < groupsList.size ()) {
+                    RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupData");
+                    form.addParam ("token", UserEntity.getProperty ("token"));
+                    form.addParam ("group_id", groupsList.get (groupsDataLoaded).ID + "");
+
+                    Bundle args = new Bundle ();
+                    args.putSerializable ("form", form);
+                    getLoaderManager ().restartLoader (0, args, this);
+                }
             }
         }
     }
