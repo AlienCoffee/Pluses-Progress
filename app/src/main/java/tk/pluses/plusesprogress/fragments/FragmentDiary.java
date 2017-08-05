@@ -19,7 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import tk.pluses.plusesprogress.JoinGroupPage;
@@ -48,11 +51,6 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // WARNING: was commented by Shemplo
-        /*ArrayAdapter<String> adapter = new ArrayAdapter <> (getActivity (),
-                android.R.layout.simple_list_item_1, data);
-        setListAdapter(adapter);*/
     }
 
     @Override
@@ -75,6 +73,12 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
             Log.e ("DiaryFragment", "User not logined");
             return;
         }
+
+        File root = getActivity ().getFilesDir ();
+        File dataFolder = new File (root, "data");
+        if (!dataFolder.exists ()) { dataFolder.mkdir (); }
+
+
 
         RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserGroups");
         form.addParam ("token", UserEntity.getProperty ("token"));
@@ -133,6 +137,12 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     for (int i = 0; i < length; i ++) {
                         groupsList.add (new GroupEntity (groupsArray.getInt (i)));
                     }
+
+                    Collections.sort (groupsList, new Comparator <GroupEntity> () {
+                        public int compare (GroupEntity o1, GroupEntity o2) {
+                            return o1.ID - o2.ID;
+                        }
+                    });
 
                     groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
                     GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
