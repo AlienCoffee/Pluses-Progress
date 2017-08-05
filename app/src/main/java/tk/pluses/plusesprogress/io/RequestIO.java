@@ -64,7 +64,11 @@ public class RequestIO extends AsyncTaskLoader <RequestResult> {
             // Just handle exception
         }
 
-        return null;
+        Map <String, String> answer = new HashMap <> ();
+        answer.put ("name", "No internet");
+        answer.put ("type", "Error");
+        answer.put ("code", "6000");
+        return new RequestResult (6000, FORM.HOST, answer);
     }
 
     private Map <String, String> parse (String json) {

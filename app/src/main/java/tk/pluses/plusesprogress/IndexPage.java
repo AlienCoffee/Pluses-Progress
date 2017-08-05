@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -35,11 +37,15 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
     private NavigationView navigation;
     private DrawerLayout drawer;
 
+    public static IndexPage page;
+    public int currentTopic = -1;
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_index_page);
 
+        IndexPage.page = this;
         SharedPreferences preferences = getSharedPreferences (UserEntity.CONFIG_FILE,
                                                                 Context.MODE_PRIVATE);
         UserEntity.setPreferences (preferences);
@@ -79,7 +85,7 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         UserEntity.storeInFile ();
     }
 
-    private String getDeviceCode () {
+    public String getDeviceCode () {
         @SuppressLint ("HardwareIds")
         String code = Settings.Secure.getString (getBaseContext ().getContentResolver (),
                                                     Settings.Secure.ANDROID_ID);
@@ -99,6 +105,11 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         }
 
         return code;
+    }
+
+    public boolean isNetworkConnected () {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService (Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 
     @Override
@@ -123,14 +134,11 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
     @Override
     public void onLoaderReset (Loader <RequestResult> loader) {}
 
-    @Override
-    public boolean onNavigationItemSelected (@NonNull MenuItem item) {
-        Fragment fragment = null;
+    public boolean switchFragment (int navigationItemId) {
         Class frClass = null;
-        Intent intent = null;
+        Fragment fragment;
 
-        Log.i ("Index", "click");
-        switch (item.getItemId ()) {
+        switch (navigationItemId) {
             case (R.id.navigation_item_auth):
                 frClass = FragmentAuth.class;
                 break;
@@ -147,7 +155,17 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         }
 
         FragmentManager manager = getSupportFragmentManager ();
-        manager.beginTransaction ().replace (R.id.menu_frame_layout, fragment).commit ();
+        manager.beginTransaction ()
+                .replace (R.id.menu_frame_layout, fragment)
+                .commit ();
+
+        return true;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected (@NonNull MenuItem item) {
+        boolean result = switchFragment (item.getItemId ());
+        if (!result) { return false; }
 
         item.setChecked (true);
         setTitle (item.getTitle ());
