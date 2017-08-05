@@ -21,9 +21,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -65,6 +63,7 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
         answerMessage  = (TextView) view.findViewById (R.id.answerMessageView);
         progressBar    = (ProgressBar) view.findViewById (R.id.loadingProgress);
         groupsRecycler = (RecyclerView) view.findViewById (R.id.groupsRecyclerView);
+        groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
 
         progressBar.setVisibility (View.VISIBLE);
 
@@ -169,7 +168,6 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                         br.close ();
                     }
 
-                    groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
                     GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
                     groupsRecycler.setAdapter (adapter);
                 } catch (FileNotFoundException fnfe) {
@@ -217,7 +215,6 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                         groupsList.add (new GroupEntity (groupsArray.getInt (i)));
                     }
 
-                    groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
                     GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
                     groupsRecycler.setAdapter (adapter);
                 } catch (JSONException jsone) {
