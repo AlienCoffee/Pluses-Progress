@@ -112,15 +112,6 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         return cm.getActiveNetworkInfo() != null;
     }
 
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress inetAddress = InetAddress.getByName ("google.com");
-            return !inetAddress.equals ("");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     @Override
     public Loader <RequestResult> onCreateLoader (int id, Bundle args) {
         return new RequestIO (this.getBaseContext (), (RequestForm) args.get ("form"));

@@ -39,10 +39,10 @@ public class GroupsAdapter extends RecyclerView.Adapter {
     public void updateItem (int position) {
         GroupEntity groupEntity = groupsList.get (position);
         GroupViewHolder customHolder = (GroupViewHolder) holders.get (position);
-        customHolder.groupTitle.setText (groupsList.get (position).getName ());
-        customHolder.groupTopicsValue.setText (groupsList.get (position).getTopicsNumber () + "");
-        customHolder.groupMembersValue.setText (groupsList.get (position).getGroupSize () + "");
-        customHolder.groupHeadTeacherValue.setText (groupsList.get (position).getHeadTeacherID () + "");
+        customHolder.groupTitle.setText (groupEntity.getName ());
+        customHolder.groupTopicsValue.setText (groupEntity.getTopicsNumber () + "");
+        customHolder.groupMembersValue.setText (groupEntity.getGroupSize () + "");
+        customHolder.groupHeadTeacherValue.setText (groupEntity.getHeadTeacherID () + "");
     }
 
     @Override
@@ -64,6 +64,19 @@ public class GroupsAdapter extends RecyclerView.Adapter {
 
         customHolder.position = position;
         customHolder.groupIDValue.setText (groupEntity.ID + "");
+
+        if (groupEntity.getName () != null) {
+            customHolder.groupTitle.setText (groupEntity.getName ());
+        }
+        if (groupEntity.getTopicsNumber () != -1) {
+            customHolder.groupTopicsValue.setText (groupEntity.getTopicsNumber () + "");
+        }
+        if (groupEntity.getGroupSize () != -1) {
+            customHolder.groupMembersValue.setText (groupEntity.getGroupSize () + "");
+        }
+        if (groupEntity.getHeadTeacherID () != -1) {
+            customHolder.groupHeadTeacherValue.setText (groupEntity.getHeadTeacherID () + "");
+        }
     }
 
     @Override

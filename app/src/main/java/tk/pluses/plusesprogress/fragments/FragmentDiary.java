@@ -19,10 +19,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import tk.pluses.plusesprogress.JoinGroupPage;
@@ -74,12 +79,6 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
             return;
         }
 
-        File root = getActivity ().getFilesDir ();
-        File dataFolder = new File (root, "data");
-        if (!dataFolder.exists ()) { dataFolder.mkdir (); }
-
-
-
         RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserGroups");
         form.addParam ("token", UserEntity.getProperty ("token"));
         form.addParam ("user_id", UserEntity.getProperty ("id"));
@@ -113,10 +112,74 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
         answerMessage.setTextColor (Color.BLACK);
         answerMessage.setText ("");
 
+        File root = getActivity ().getFilesDir ();
+        File dataFolder = new File (root, "data");
+        if (!dataFolder.exists ()) { dataFolder.mkdir (); }
+
         if (data.TYPE.equals ("Error")) {
             Log.e ("AuthFragment", "Message: " + data.getField ("name")
                     + " (comment: " + data.getField ("message") + ")");
-            if (data.CODE >= 3000) {
+            if (data.CODE == 6000 /* NO INTERNET CONNECTION */) {
+                // It's especial situation when data must be loaded from data-file
+                File groupsListFile = new File (dataFolder, "groups-list.dat");
+                if (!groupsListFile.exists ()) {
+                    // Nothing was cached -> stop working
+                    answerMessage.setText ("No internet and nothing was saved before");
+                    answerMessage.setTextColor (Color.RED);
+                    return;
+                }
+
+                try {
+                    BufferedReader br = new BufferedReader (new FileReader (groupsListFile));
+
+                    // ID of the user that this list belongs to
+                    String userIdentification = br.readLine ();
+                    if (!userIdentification.equals (UserEntity.getProperty ("id"))) {
+                        answerMessage.setText ("No internet and nothing was saved before");
+                        answerMessage.setTextColor (Color.RED);
+                        return;
+                    }
+
+                    // Data must be stored in single line in JSON Array format
+                    String groupsListString =  br.readLine ();
+                    JSONArray groupsArray = new JSONArray (groupsListString);
+
+                    // Close reader
+                    br.close ();
+
+                    groupsList = new ArrayList <> ();
+                    groupsDataLoaded = 0;
+
+                    for (int i = 0; i < groupsArray.length (); i ++) {
+                        groupsList.add (new GroupEntity (groupsArray.getInt (i)));
+                    }
+
+                    for (int i = 0; i < groupsList.size (); i ++) {
+                        GroupEntity entity = groupsList.get (i);
+                        File groupEntityFile = new File (dataFolder,
+                                "group-" + entity.ID
+                                        +"-data.dat");
+                        if (!groupEntityFile.exists ()) { continue; }
+
+                        br = new BufferedReader (new FileReader (groupEntityFile));
+                        entity.setName (br.readLine ());
+                        entity.setTopicsNumber (Integer.parseInt (br.readLine ()));
+                        entity.setGroupSize (Integer.parseInt (br.readLine ()));
+                        entity.setHeadTeacherID (Integer.parseInt (br.readLine ()));
+                        br.close ();
+                    }
+
+                    groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
+                    GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
+                    groupsRecycler.setAdapter (adapter);
+                } catch (FileNotFoundException fnfe) {
+
+                } catch (IOException ioe) {
+
+                } catch (JSONException jsone) {
+                    jsone.printStackTrace ();
+                }
+            } else if (data.CODE >= 3000) {
                 String message = data.getField ("message");
                 answerMessage.setText (data.getField ("name")
                                         + (message != null && message.length () > 0
@@ -134,15 +197,25 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     JSONArray groupsArray = new JSONArray (groups);
                     int length = groupsArray.length ();
 
+                    File groupsListFile = new File (dataFolder, "groups-list.dat");
+                    if (!groupsListFile.exists ()) {
+                        try {
+                            groupsListFile.createNewFile ();
+                        } catch (IOException e) { /* STUB */ }
+                    }
+
+                    try {
+                        PrintWriter pw = new PrintWriter (groupsListFile);
+                        pw.println (UserEntity.getProperty ("id"));
+                        pw.println (groupsArray.toString ());
+
+                        Log.i (this.getClass ().getSimpleName (), "Data was stored in file");
+                        pw.close ();
+                    } catch (IOException e) {}
+
                     for (int i = 0; i < length; i ++) {
                         groupsList.add (new GroupEntity (groupsArray.getInt (i)));
                     }
-
-                    Collections.sort (groupsList, new Comparator <GroupEntity> () {
-                        public int compare (GroupEntity o1, GroupEntity o2) {
-                            return o1.ID - o2.ID;
-                        }
-                    });
 
                     groupsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
                     GroupsAdapter adapter = new GroupsAdapter (getActivity (), groupsList);
@@ -177,6 +250,28 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     entity.setTopicsNumber (jsonTopics.getInt ("size"));
 
                     ((GroupsAdapter) groupsRecycler.getAdapter ()).updateItem (groupsDataLoaded);
+
+                    // Saving data in files
+                    File groupEntityFile = new File (dataFolder,
+                                                        "group-" + entity.ID
+                                                                +"-data.dat");
+                    if (!groupEntityFile.exists ()) {
+                        try {
+                            groupEntityFile.createNewFile ();
+                        } catch (IOException e) { /* STUB */ }
+                    }
+
+                    try {
+                        PrintWriter pw = new PrintWriter (groupEntityFile);
+                        pw.println (entity.getName ());
+                        pw.println (entity.getTopicsNumber () + "");
+                        pw.println (entity.getGroupSize () + "");
+                        pw.println (entity.getHeadTeacherID () + "");
+
+                        Log.i (this.getClass ().getSimpleName (), "Group #" + entity.ID
+                                                                    + " data was stored in file");
+                        pw.close ();
+                    } catch (IOException e) {}
                 } catch (JSONException jsone) {
                     jsone.printStackTrace ();
                 }

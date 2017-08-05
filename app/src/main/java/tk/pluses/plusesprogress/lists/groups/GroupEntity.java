@@ -11,10 +11,10 @@ public class GroupEntity {
      * */
     public final int ID;
 
-    private String name;
-    private int headTeacherID,
-                groupSize,
-                topicsNumber;
+    private String name = null;
+    private int headTeacherID = -1,
+                groupSize     = -1,
+                topicsNumber  = -1;
 
     public GroupEntity (int id) {
         this.ID = id;
