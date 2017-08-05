@@ -4,12 +4,10 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +98,7 @@ public class GroupsAdapter extends RecyclerView.Adapter {
                 public void onClick (View v) {
                     int groupID = Integer.parseInt (groupIDValue.getText ().toString ());
                     Log.i (this.getClass ().getSimpleName (), "Selected group: " + groupID);
-                    IndexPage.page.currentTopic = groupID;
+                    IndexPage.page.currentGroup = groupID;
 
                     IndexPage.page.switchFragment (R.id.navigation_item_auth);
                 }
