@@ -15,10 +15,6 @@ import java.util.Map;
 import tk.pluses.plusesprogress.IndexPage;
 import tk.pluses.plusesprogress.R;
 
-/**
- * Created by Андрей on 05.08.2017.
- */
-
 public class GroupsAdapter extends RecyclerView.Adapter {
 
     private final Map <Integer, RecyclerView.ViewHolder> holders;
@@ -100,7 +96,7 @@ public class GroupsAdapter extends RecyclerView.Adapter {
                     Log.i (this.getClass ().getSimpleName (), "Selected group: " + groupID);
                     IndexPage.page.currentGroup = groupID;
 
-                    IndexPage.page.switchFragment (R.id.navigation_item_auth);
+                    IndexPage.page.switchFragment (R.id.navigation_item_group);
                 }
             });
 
