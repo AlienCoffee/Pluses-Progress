@@ -44,7 +44,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@android:color/black"
             android:textSize="15sp"
-            android:text="--"
+            android:text="-"
             style="@android:style/Widget.Material"
             tools:targetApi="lollipop"/>
 
@@ -56,7 +56,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@android:color/black"
             android:textSize="15sp"
-            android:text="Head teacher:"
+            android:text="Head teacher: "
             style="@android:style/Widget.Material"
             tools:targetApi="lollipop"/>
 

@@ -77,7 +77,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
             return;
         }
 
-        RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupTopics");//??
+        RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupTopics");
         form.addParam ("token", UserEntity.getProperty ("token"));
         form.addParam ("group_id", IndexPage.page.currentGroup + "");
 
@@ -113,7 +113,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                     + " (comment: " + data.getField ("message") + ")");
             if (data.CODE == 6000 /* NO INTERNET CONNECTION */) {
                 // It's especial situation when data must be loaded from data-file
-                File topicsListFile = new File (dataFolder, "topics-list.dat");
+                File topicsListFile = new File (dataFolder, "group-" + IndexPage.page.currentGroup+ "-topics-list.dat");
                 if (!topicsListFile.exists ()) {
                     // Nothing was cached -> stop working
                     answerMessage.setText ("No internet and nothing was saved before");
@@ -124,15 +124,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                 try {
                     BufferedReader br = new BufferedReader (new FileReader (topicsListFile));
 
-                    // ID of the user that this list belongs to
-                    String userIdentification = br.readLine ();
-                    if (!userIdentification.equals (UserEntity.getProperty ("id"))) {
-                        answerMessage.setText ("No internet and nothing was saved before");
-                        answerMessage.setTextColor (Color.RED);
-                        return;
-                    }
-
-                    // Data must be stored in single line in JSON Array format
+                   // Data must be stored in single line in JSON Array format
                     String topicsListString =  br.readLine ();
                     JSONArray topicsArray = new JSONArray (topicsListString);
 
@@ -155,9 +147,13 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
 
                         br = new BufferedReader (new FileReader (topicEntityFile));
                         entity.setName (br.readLine ());
+                        Log.i("qwe",entity.getName());
                         entity.setAuthorID (Integer.parseInt (br.readLine ()));
+                        Log.i("qwe",entity.getAuthorID()+"");
                         entity.setRatedCounter (Integer.parseInt (br.readLine ()));
+                        Log.i("qwe",entity.getRatedCounter()+"");
                         entity.setTotalCounter (Integer.parseInt (br.readLine ()));
+                        Log.i("qwe",entity.getTotalCounter()+"");
                         br.close ();
                     }
                     TopicsAdapter adapter = new TopicsAdapter (getActivity (), topicsList);
@@ -179,9 +175,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
             }
         } else if (data.TYPE.equals ("Success") && data.CODE == 1000) {
             Log.i(data.HOST,"w");
-            if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupTopics")) {///ne zahodit
-
-                Log.i("qweweqeeeeeee","qqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+            if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupTopics")) {
                 topicsList = new ArrayList <> ();
                 topicsDataLoaded = 0;
 
@@ -190,7 +184,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                     JSONArray topicsArray = new JSONArray (topics);
                     int length = topicsArray.length ();
 
-                    File topicsListFile = new File (dataFolder, "topics-list.dat");
+                    File topicsListFile = new File (dataFolder, "group-" + IndexPage.page.currentGroup + "-topics-list.dat");
                     if (!topicsListFile.exists ()) {
                         try {
                             topicsListFile.createNewFile ();
@@ -199,7 +193,6 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
 
                     try {
                         PrintWriter pw = new PrintWriter (topicsListFile);
-                        pw.println (UserEntity.getProperty ("id"));
                         pw.println (topicsArray.toString ());
 
                         Log.i (this.getClass ().getSimpleName (), "Data was stored in file");
@@ -257,7 +250,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                         pw.println (entity.getAuthorID() + "");
                         pw.println (entity.getRatedCounter () + "");
                         pw.println (entity.getTotalCounter () + "");
-                        Log.i (this.getClass ().getSimpleName (), "Group #" + entity.ID
+                        Log.i (this.getClass ().getSimpleName (), "Topic #" + entity.ID
                                 + " data was stored in file");
                         pw.close ();
                     } catch (IOException e) {}
@@ -267,9 +260,9 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
 
                 topicsDataLoaded++;
                 if (topicsDataLoaded < topicsList.size ()) {
-                    RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupData");
+                    RequestForm form = new RequestForm ("http://pluses.tk/api.topics.getTopicData");
                     form.addParam ("token", UserEntity.getProperty ("token"));
-                    form.addParam ("group_id", topicsList.get (topicsDataLoaded).ID + "");
+                    form.addParam ("topic_id", topicsList.get (topicsDataLoaded).ID + "");
 
                     Bundle args = new Bundle ();
                     args.putSerializable ("form", form);

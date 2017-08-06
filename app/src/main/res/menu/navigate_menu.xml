@@ -14,6 +14,7 @@
             android:title="Diary" />
         <item
             android:id="@+id/navigation_item_topics"
+            android:visible="false"
             android:title="Topics" />
         <item
             android:id="@+id/navigation_item_results"
