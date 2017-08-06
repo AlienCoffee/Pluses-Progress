@@ -96,7 +96,7 @@ public class GroupsAdapter extends RecyclerView.Adapter {
                     Log.i (this.getClass ().getSimpleName (), "Selected group: " + groupID);
                     IndexPage.page.currentGroup = groupID;
 
-                    IndexPage.page.switchFragment (R.id.navigation_item_group);
+                    IndexPage.page.switchFragment (R.id.navigation_item_topics);
                 }
             });
 

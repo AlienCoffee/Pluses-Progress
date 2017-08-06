@@ -24,7 +24,7 @@ import java.security.NoSuchAlgorithmException;
 
 import tk.pluses.plusesprogress.fragments.FragmentAuth;
 import tk.pluses.plusesprogress.fragments.FragmentDiary;
-import tk.pluses.plusesprogress.fragments.FragmentGroup;
+import tk.pluses.plusesprogress.fragments.FragmentTopics;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
@@ -144,8 +144,8 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
             case (R.id.navigation_item_diary):
                 frClass = FragmentDiary.class;
                 break;
-            case (R.id.navigation_item_group):
-                frClass = FragmentGroup.class;
+            case (R.id.navigation_item_topics):
+                frClass = FragmentTopics.class;
                 break;
         }
 

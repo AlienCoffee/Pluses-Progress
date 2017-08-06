@@ -13,8 +13,8 @@
             android:id="@+id/navigation_item_diary"
             android:title="Diary" />
         <item
-            android:id="@+id/navigation_item_group"
-            android:title="Group" />
+            android:id="@+id/navigation_item_topics"
+            android:title="Topics" />
         <item
             android:id="@+id/navigation_item_results"
             android:title="Results" />
