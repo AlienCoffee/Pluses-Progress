@@ -2,7 +2,6 @@ package tk.pluses.plusesprogress;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.provider.Settings;
@@ -20,13 +19,12 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import tk.pluses.plusesprogress.fragments.FragmentAuth;
 import tk.pluses.plusesprogress.fragments.FragmentDiary;
-import tk.pluses.plusesprogress.fragments.FragmentUsers;
+import tk.pluses.plusesprogress.fragments.FragmentTopics;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
@@ -144,7 +142,10 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
                 frClass = FragmentAuth.class;
                 break;
             case (R.id.navigation_item_diary):
-                frClass = FragmentUsers.class;
+                frClass = FragmentDiary.class;
+                break;
+            case (R.id.navigation_item_topics):
+                frClass = FragmentTopics.class;
                 break;
         }
 
