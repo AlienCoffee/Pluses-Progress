@@ -60,6 +60,8 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
     public void onViewCreated (View view, Bundle savedInstanceState) {
         super.onViewCreated (view, savedInstanceState);
 
+        Log.i (this.getClass ().getSimpleName (), "Create");
+
         answerMessage  = (TextView) view.findViewById (R.id.answerMessageView);
         progressBar    = (ProgressBar) view.findViewById (R.id.loadingProgress);
         groupsRecycler = (RecyclerView) view.findViewById (R.id.groupsRecyclerView);
@@ -78,6 +80,20 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
             return;
         }
 
+        view.findViewById (R.id.linkToJoinGroup).setOnClickListener (new View.OnClickListener () {
+            public void onClick (View v) {
+                Intent intent = new Intent (v.getContext (), JoinGroupPage.class);
+                startActivity (intent);
+            }
+        });
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume ();
+
+        Log.i (this.getClass ().getSimpleName (), "Resume");
+
         RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserGroups");
         form.addParam ("token", UserEntity.getProperty ("token"));
         form.addParam ("user_id", UserEntity.getProperty ("id"));
@@ -85,13 +101,6 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
         Bundle args = new Bundle ();
         args.putSerializable ("form", form);
         getLoaderManager ().restartLoader (0, args, this);
-
-        view.findViewById (R.id.linkToJoinGroup).setOnClickListener (new View.OnClickListener () {
-            public void onClick (View v) {
-                Intent intent = new Intent (v.getContext (), JoinGroupPage.class);
-                startActivity (intent);
-            }
-        });
     }
 
     @Override
@@ -187,6 +196,7 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
             }
         } else if (data.TYPE.equals ("Success") && data.CODE == 1000) {
             if (data.HOST.equals ("http://pluses.tk/api.users.getUserGroups")) {
+                Log.i (this.getClass ().getSimpleName (), "To loaded list of groups");
                 groupsList = new ArrayList <> ();
                 groupsDataLoaded = 0;
 
@@ -230,6 +240,7 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     getLoaderManager ().restartLoader (0, args, this);
                 }
             } else if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupData")) {
+                Log.i (this.getClass ().getSimpleName (), "To loaded data of group");
                 Log.i (this.getClass ().getSimpleName (), "Data for group loaded: "
                                                             + data.getField ("message"));
                 try {
@@ -271,6 +282,8 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     } catch (IOException e) {}
                 } catch (JSONException jsone) {
                     jsone.printStackTrace ();
+                } catch (IndexOutOfBoundsException iobe) {
+                    Log.e (this.getClass ().getSimpleName (), "Bing index: " + groupsDataLoaded);
                 }
 
                 groupsDataLoaded ++;
