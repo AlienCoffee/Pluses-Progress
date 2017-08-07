@@ -17,6 +17,10 @@
             android:visible="false"
             android:title="Topics" />
         <item
+            android:id="@+id/navigation_item_users"
+            android:visible="false"
+            android:title="Users"/>
+        <item
             android:id="@+id/navigation_item_results"
             android:title="Results" />
         <item

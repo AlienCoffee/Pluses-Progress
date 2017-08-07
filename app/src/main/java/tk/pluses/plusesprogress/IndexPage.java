@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import tk.pluses.plusesprogress.fragments.FragmentAuth;
 import tk.pluses.plusesprogress.fragments.FragmentDiary;
 import tk.pluses.plusesprogress.fragments.FragmentTopics;
+import tk.pluses.plusesprogress.fragments.FragmentUsers;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
@@ -37,7 +38,8 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
     private DrawerLayout drawer;
 
     public static IndexPage page;
-    public int currentGroup = -1;
+    public int currentGroup = -1,
+                currentTopic = -1;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -146,6 +148,9 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
                 break;
             case (R.id.navigation_item_topics):
                 frClass = FragmentTopics.class;
+                break;
+            case (R.id.navigation_item_users):
+                frClass = FragmentUsers.class;
                 break;
         }
 

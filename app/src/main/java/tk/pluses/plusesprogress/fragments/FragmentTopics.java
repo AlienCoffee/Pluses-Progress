@@ -63,19 +63,14 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
         progressBar    = (ProgressBar) view.findViewById (R.id.loadingProgress);
         topicsRecycler = (RecyclerView) view.findViewById (R.id.topicsRecyclerView);
         topicsRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
+    }
 
+    @Override
+    public void onResume () {
+        super.onResume ();
+
+        Log.i (this.getClass ().getSimpleName (), "Resume");
         progressBar.setVisibility (View.VISIBLE);
-        if (UserEntity.getProperty ("token") == null
-                || UserEntity.getProperty ("id") == null) {
-            // User not logined
-            // Here must be pop-up notification about it
-
-            answerMessage.setText ("You are not log in");
-            answerMessage.setTextColor (Color.RED);
-            progressBar.setVisibility (View.GONE);
-            Log.e ("TopicFragment", "User not logined");
-            return;
-        }
 
         RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupTopics");
         form.addParam ("token", UserEntity.getProperty ("token"));
@@ -98,7 +93,6 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished (Loader <RequestResult> loader, RequestResult data) {
-
         Log.i ("TopicsFragment", data.TYPE + " (code: " + data.CODE + ")");
         progressBar.setVisibility (View.GONE);
         answerMessage.setTextColor (Color.BLACK);
@@ -256,6 +250,8 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                     } catch (IOException e) {}
                 } catch (JSONException jsone) {
                     jsone.printStackTrace ();
+                } catch (IndexOutOfBoundsException iobe) {
+                    Log.e (this.getClass ().getSimpleName (), "Bing index: " + topicsDataLoaded);
                 }
 
                 topicsDataLoaded++;

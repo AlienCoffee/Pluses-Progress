@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tk.pluses.plusesprogress.IndexPage;
 import tk.pluses.plusesprogress.R;
 import tk.pluses.plusesprogress.lists.groups.GroupEntity;
 import tk.pluses.plusesprogress.lists.groups.GroupsAdapter;
@@ -73,9 +74,13 @@ public class TopicsAdapter extends RecyclerView.Adapter {
         public TopicViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
+            itemView.setOnClickListener(new View.OnClickListener () {
+                public void onClick (View v) {
+                    int topicID = Integer.parseInt (topicIDValue.getText ().toString ());
                     Log.i(this.getClass().getSimpleName(), "Position: " + position);
+                    IndexPage.page.currentTopic = topicID;
+
+                    IndexPage.page.switchFragment (R.id.navigation_item_users);
                 }
             });
 

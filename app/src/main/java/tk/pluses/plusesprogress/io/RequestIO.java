@@ -39,6 +39,8 @@ public class RequestIO extends AsyncTaskLoader <RequestResult> {
     @Override
     public RequestResult loadInBackground () {
         try {
+            Log.i (this.getClass ().getSimpleName (), "Request to HOST: " + FORM.HOST);
+
             HttpClient client = HttpClients.createDefault ();
             HttpPost post = new HttpPost (FORM.HOST);
             post.setEntity (new UrlEncodedFormEntity (FORM.getParams (), "UTF-8"));
