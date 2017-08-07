@@ -2,13 +2,19 @@ package tk.pluses.plusesprogress.lists.users;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import tk.pluses.plusesprogress.IndexPage;
+import tk.pluses.plusesprogress.R;
+import tk.pluses.plusesprogress.lists.groups.GroupsAdapter;
 
 /**
  * Created by Андрей on 05.08.2017.
@@ -31,23 +37,56 @@ public class UsersListAdapter extends RecyclerView.Adapter {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
-        return null;
+        return UsersListViewHolder.getInstance (layoutInflater, parent);
     }
 
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position) {
+        holders.put (position, holder);
 
+        UserListEntity entity = usersList.get (position);
+        UsersListViewHolder customHolder = (UsersListViewHolder) holder;
+
+        customHolder.position = position;
+        customHolder.userIDValue.setText (entity.ID + "");
     }
 
     @Override
     public int getItemCount () {
-        return 0;
+        return usersList.size ();
     }
 
     private static class UsersListViewHolder extends RecyclerView.ViewHolder {
+
+        public int position;
+        public TextView userNameValue,
+                            userIDValue,
+                            userTotalValue,
+                            userSolvedValue;
+
         public UsersListViewHolder (View itemView) {
             super (itemView);
+
+            itemView.setOnClickListener (new View.OnClickListener () {
+                public void onClick (View v) {
+                    int userID = Integer.parseInt (userIDValue.getText ().toString ());
+                    Log.i (this.getClass ().getSimpleName (), "Selected user: " + userID);
+                    IndexPage.page.currentUser = userID;
+                }
+            });
+
+            userNameValue   = (TextView) itemView.findViewById (R.id.userName);
+            userIDValue     = (TextView) itemView.findViewById (R.id.userIDValue);
+            userTotalValue  = (TextView) itemView.findViewById (R.id.userTotalSolved);
+            userSolvedValue = (TextView) itemView.findViewById (R.id.userProblemsSolved);
+            Log.i (this.getClass ().getSimpleName (), "Registered");
         }
+
+        public static UsersListViewHolder getInstance (LayoutInflater layoutInflater, ViewGroup parent) {
+            final View view = layoutInflater.inflate(R.layout.item_user, parent, false);
+            return new UsersListViewHolder (view);
+        }
+
     }
 
 }

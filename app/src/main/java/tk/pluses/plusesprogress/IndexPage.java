@@ -39,7 +39,8 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
 
     public static IndexPage page;
     public int currentGroup = -1,
-                currentTopic = -1;
+                currentTopic = -1,
+                currentUser = -1;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
