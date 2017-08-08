@@ -22,7 +22,7 @@ import tk.pluses.plusesprogress.lists.groups.GroupsAdapter;
 
 public class UsersListAdapter extends RecyclerView.Adapter {
 
-    private final Map<Integer, RecyclerView.ViewHolder> holders;
+    private final Map <Integer, RecyclerView.ViewHolder> holders;
 
     private final List <UserListEntity> usersList;
     private final LayoutInflater layoutInflater;
@@ -49,6 +49,17 @@ public class UsersListAdapter extends RecyclerView.Adapter {
 
         customHolder.position = position;
         customHolder.userIDValue.setText (entity.ID + "");
+
+        if (entity.getName () != null) {
+            customHolder.userNameValue.setText (entity.getName ());
+        }
+        if (entity.getTotalPluses () != -1) {
+            customHolder.userTotalValue.setText (entity.getTotalPluses () + "");
+
+            String mask = entity.getMask ();
+            mask = mask + " (" + entity.getLocalPluses () + ")";
+            customHolder.userSolvedValue.setText (mask);
+        }
     }
 
     @Override

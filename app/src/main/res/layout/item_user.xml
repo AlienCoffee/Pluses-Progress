@@ -111,33 +111,4 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@android:color/black"
-            android:textSize="15sp"
-            android:text="Head teacher: "
-            style="@android:style/Widget.Material"
-            tools:targetApi="lollipop"/>
-
-        <TextView
-            android:id="@+id/userHeadTeacher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@android:color/black"
-            android:textSize="15sp"
-            android:text="--"
-            style="@android:style/Widget.Material"
-            tools:targetApi="lollipop"/>
-
-    </LinearLayout>
-
 </LinearLayout>

@@ -16,8 +16,10 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import tk.pluses.plusesprogress.IndexPage;
@@ -68,6 +70,8 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                                                 LinearLayoutManager.HORIZONTAL,
                                                 false));
         usersRecycler    = (RecyclerView) view.findViewById (R.id.usersListView);
+        usersRecycler.setLayoutManager (new LinearLayoutManager (getActivity ()));
+
         loadingProblems  = (ProgressBar) view.findViewById (R.id.loadingProblemsProgress);
         loadingUsers     = (ProgressBar) view.findViewById (R.id.loadingUsersProgress);
         answerMessage    = (TextView) view.findViewById (R.id.answerMessageView);
@@ -81,9 +85,9 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
         loadingProblems.setVisibility (View.VISIBLE);
         loadingUsers.setVisibility (View.VISIBLE);
 
-        RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupUsers");
+        RequestForm form = new RequestForm ("http://pluses.tk/api.topics.getTopicContent");
         form.addParam ("token", UserEntity.getProperty ("token"));
-        form.addParam ("group_id", IndexPage.page.currentGroup + "");
+        form.addParam ("topic_id", IndexPage.page.currentTopic + "");
 
         Bundle args = new Bundle ();
         args.putSerializable ("form", form);
@@ -112,7 +116,38 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                 answerMessage.setTextColor (Color.RED);
             }
         } else if (data.TYPE.equals ("Success") && data.CODE == 1000) {
-            if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupUsers")) {
+            if (data.HOST.equals ("http://pluses.tk/api.topics.getTopicContent")) {
+                problemsList = new ArrayList <> ();
+                loadedProblemsData = 0;
+
+                try {
+                    String problems = data.getField ("message");
+                    JSONObject problemsObject = new JSONObject (problems);
+                    Iterator <String> keys = problemsObject.keys ();
+
+                    while (keys.hasNext ()) {
+                        String key = keys.next ();
+                        JSONObject problem = new JSONObject (problemsObject.getString (key));
+
+                        int integerKey = Integer.parseInt (key);
+                        problemsList.add (new ProblemEntity (integerKey,
+                                                                problem.getString ("name"),
+                                                                problem.getInt ("rating")));
+                    }
+
+                    ProblemsAdapter adapter = new ProblemsAdapter (getActivity (), problemsList);
+                    problemsRecycler.setAdapter (adapter);
+                } catch (JSONException jsone) {}
+
+                // Next step - to loac all users from group list
+                RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupUsers");
+                form.addParam ("token", UserEntity.getProperty ("token"));
+                form.addParam ("group_id", IndexPage.page.currentGroup + "");
+
+                Bundle args = new Bundle ();
+                args.putSerializable ("form", form);
+                getLoaderManager ().restartLoader (0, args, this);
+            } else if (data.HOST.equals ("http://pluses.tk/api.groups.getGroupUsers")) {
                 usersList = new ArrayList <> ();
                 loadedUsersData = 0;
 
@@ -122,12 +157,57 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     int length = usersArray.length ();
 
                     for (int i = 0; i < length; i ++) {
-                        usersList.add (new UserListEntity (usersArray.getInt (i)));
+                        usersList.add (new UserListEntity (usersArray.getInt (i), problemsList.size ()));
                     }
 
-                    UsersListAdapter adapter = new UsersListAdapter ();
+                    UsersListAdapter adapter = new UsersListAdapter (getActivity (), usersList);
                     usersRecycler.setAdapter (adapter);
+                } catch (JSONException jsone) {}
+
+                loadedUsersData = 0;
+                if (usersList.size () > 0) {
+                    RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
+                    form.addParam ("token", UserEntity.getProperty ("token"));
+                    form.addParam ("user_id", usersList.get (loadedUsersData).ID + "");
+
+                    Bundle args = new Bundle ();
+                    args.putSerializable ("form", form);
+                    getLoaderManager ().restartLoader (0, args, this);
+
+                    loadedUsersData ++;
+                }
+            } else if (data.HOST.equals ("http://pluses.tk/api.users.getUserData")) {
+                try {
+                    String message = data.getField ("message");
+                    JSONObject userData = new JSONObject (message);
+
+                    String rights = userData.getString ("rights");
+                    if (rights.length () >= 5 && rights.charAt (4) == 'm') {
+                        int index = 0, id = userData.getInt ("id");
+                        for (UserListEntity entity: usersList) {
+                            if (entity.ID == id) { break; }
+                            index ++;
+                        }
+
+                        usersList.remove (index);
+                        loadedUsersData --;
+
+                        // Telling RecycleView that we've lost one user
+                        ((UsersListAdapter) usersRecycler.getAdapter ()).notifyDataSetChanged ();
+                    }
                 } catch (JSONException jsone) {
+                }
+
+                if (loadedUsersData < usersList.size ()) {
+                    RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
+                    form.addParam ("token", UserEntity.getProperty ("token"));
+                    form.addParam ("user_id", usersList.get (loadedUsersData).ID + "");
+
+                    Bundle args = new Bundle ();
+                    args.putSerializable ("form", form);
+                    getLoaderManager ().restartLoader (0, args, this);
+
+                    loadedUsersData ++;
                 }
             }
         }

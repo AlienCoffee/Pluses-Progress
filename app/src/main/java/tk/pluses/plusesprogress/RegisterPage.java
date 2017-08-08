@@ -112,6 +112,8 @@ public class RegisterPage extends AppCompatActivity implements LoaderManager.Loa
         if (code != null && code.length () > 0) {
             Log.i ("RegPage", code);
             form.addParam ("invite_code", code);
+        } else {
+            //form.addParam ("invite_code", "");
         }
 
         Bundle args = new Bundle ();
