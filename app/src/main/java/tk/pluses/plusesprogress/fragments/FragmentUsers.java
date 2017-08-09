@@ -165,6 +165,7 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                 } catch (JSONException jsone) {}
 
                 loadedUsersData = 0;
+                Log.i (this.getClass ().getSimpleName (), "Users: " + usersList.size ());
                 if (usersList.size () > 0) {
                     RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
                     form.addParam ("token", UserEntity.getProperty ("token"));
@@ -173,8 +174,6 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     Bundle args = new Bundle ();
                     args.putSerializable ("form", form);
                     getLoaderManager ().restartLoader (0, args, this);
-
-                    loadedUsersData ++;
                 }
             } else if (data.HOST.equals ("http://pluses.tk/api.users.getUserData")) {
                 try {
@@ -190,14 +189,25 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                         }
 
                         usersList.remove (index);
-                        loadedUsersData --;
-
                         // Telling RecycleView that we've lost one user
                         ((UsersListAdapter) usersRecycler.getAdapter ()).notifyDataSetChanged ();
+                    } else {
+                        UserListEntity entity = usersList.get (loadedUsersData);
+
+                        String name     = userData.getString ("name");
+                        String lastName = userData.getString ("last_name");
+                        entity.setName (lastName + " " + name);
+
+                        ((UsersListAdapter) usersRecycler.getAdapter ()).notifyDataSetChanged ();
+                        loadedUsersData ++;
                     }
                 } catch (JSONException jsone) {
+
+                } catch (IndexOutOfBoundsException iobe) {
+                    iobe.printStackTrace ();
                 }
 
+                Log.i (this.getClass ().getSimpleName (), "Loaded: " + loadedUsersData + " / " + usersList.size ());
                 if (loadedUsersData < usersList.size ()) {
                     RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
                     form.addParam ("token", UserEntity.getProperty ("token"));
@@ -206,8 +216,6 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     Bundle args = new Bundle ();
                     args.putSerializable ("form", form);
                     getLoaderManager ().restartLoader (0, args, this);
-
-                    loadedUsersData ++;
                 }
             }
         }

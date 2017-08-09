@@ -28,6 +28,8 @@ public class UserListEntity {
     public int getLocalPluses () { return localPluses; }
     public void setTotalPluses (int localPluses) { this.localPluses = localPluses; }
 
+    public String [] getResults () { return results; }
+
     public void registerAttempt (int index, String result) {
         if (index < 0 && index >= results.length) {
             throw new ArrayIndexOutOfBoundsException (index);
