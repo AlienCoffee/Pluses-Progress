@@ -257,7 +257,9 @@ public class FragmentDiary extends Fragment implements LoaderManager.LoaderCallb
                     JSONObject jsonTopics = new JSONObject (json.getString ("topics"));
                     entity.setTopicsNumber (jsonTopics.getInt ("size"));
 
-                    ((GroupsAdapter) groupsRecycler.getAdapter ()).updateItem (groupsDataLoaded);
+                    //((GroupsAdapter) groupsRecycler.getAdapter ()).updateItem (groupsDataLoaded);
+                    // TODO: It works but should be tested for performance
+                    ((GroupsAdapter) groupsRecycler.getAdapter ()).notifyDataSetChanged ();
 
                     // Saving data in files
                     File groupEntityFile = new File (dataFolder,
