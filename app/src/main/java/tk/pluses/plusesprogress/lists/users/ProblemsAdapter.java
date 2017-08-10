@@ -2,14 +2,19 @@ package tk.pluses.plusesprogress.lists.users;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tk.pluses.plusesprogress.IndexPage;
 import tk.pluses.plusesprogress.R;
 import tk.pluses.plusesprogress.lists.groups.GroupEntity;
 import tk.pluses.plusesprogress.lists.groups.GroupsAdapter;
@@ -28,7 +33,7 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
 
     public ProblemsAdapter (Context context, List <ProblemEntity> list) {
         this.layoutInflater = LayoutInflater.from (context);
-        this.holders = new HashMap<> ();
+        this.holders = new HashMap <> ();
         this.problemsList = list;
         this.context = context;
     }
@@ -40,7 +45,19 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position) {
+        holders.put (position, holder);
 
+        ProblemEntity entity = problemsList.get (position);
+        ProblemsViewHolder customHolder = (ProblemsViewHolder) holder;
+
+        customHolder.position = position;
+
+        String name = entity.NAME.toUpperCase ();
+        if (name.length () > 2) {
+            name = name.substring (0, 2) + "...";
+        }
+        customHolder.nameValue.setText (name);
+        customHolder.problemIndexValue.setText (entity.INDEX + "");
     }
 
     @Override
@@ -50,8 +67,30 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
 
     private static class ProblemsViewHolder extends RecyclerView.ViewHolder {
 
+        public int position;
+        public TextView nameValue,
+                        problemIndexValue;
+        private CheckBox solvedCheckBox;
+
         public ProblemsViewHolder (View itemView) {
             super (itemView);
+
+            nameValue = (TextView) itemView.findViewById (R.id.problemNameValue);
+            solvedCheckBox = (CheckBox) itemView.findViewById (R.id.plusesCheckBoxView);
+            problemIndexValue = (TextView) itemView.findViewById (R.id.problemIndexValue);
+
+            /*solvedCheckBox.setOnClickListener (new View.OnClickListener () {
+                public void onClick (View v) {
+                    Log.i (this.getClass ().getSimpleName (), "Checkbox " + problemIndexValue.getText ()
+                                                                + " clicked: " + solvedCheckBox.isChecked ());
+                }
+            });*/
+            solvedCheckBox.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
+                public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
+                    int index = Integer.parseInt (problemIndexValue.getText ().toString ());
+                    IndexPage.page.registerAttempt (index, isChecked);
+                }
+            });
         }
 
         public static ProblemsViewHolder getInstance (LayoutInflater layoutInflater, ViewGroup parent) {
