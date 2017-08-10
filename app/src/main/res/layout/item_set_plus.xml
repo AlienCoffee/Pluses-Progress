@@ -22,17 +22,24 @@
         android:layout_marginTop="0dp"/>
 
     <TextView
+        android:id="@+id/problemNameValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp"
-        android:textSize="20sp"
+        android:textSize="17.5sp"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
         app:layout_constraintRight_toRightOf="@id/plusesCheckBoxView"
         app:layout_constraintLeft_toLeftOf="@id/plusesCheckBoxView"
         app:layout_constraintTop_toBottomOf="@id/plusesCheckBoxView"
-        android:text="A"
+        android:text="--"
         />
+
+    <TextView
+        android:id="@+id/problemIndexValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 </android.support.constraint.ConstraintLayout>

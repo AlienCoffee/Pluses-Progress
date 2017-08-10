@@ -87,6 +87,15 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         UserEntity.storeInFile ();
     }
 
+    public void registerAttempt (int problem, boolean result) {
+        RequestForm form = new RequestForm ("http://pluses.tk/api.topics.registerAttempt");
+        form.addParam ("token", UserEntity.getProperty ("token"));
+
+        Bundle args = new Bundle ();
+        args.putSerializable ("form", form);
+        getSupportLoaderManager ().restartLoader (0, args, this);
+    }
+
     public String getDeviceCode () {
         @SuppressLint ("HardwareIds")
         String code = Settings.Secure.getString (getBaseContext ().getContentResolver (),
@@ -123,13 +132,17 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
     public void onLoadFinished (Loader <RequestResult> loader, RequestResult data) {
         Log.i ("Device", data.TYPE + " (code: " + data.CODE + ")");
         if (data.TYPE.equals ("Success") && data.CODE == 1000) {
-            SharedPreferences preferences = getSharedPreferences (UserEntity.CONFIG_FILE,
-                                                                    Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit ();
-            editor.putBoolean ("device.registered", true);
-            editor.apply ();
+            if (data.HOST.equals ("http://pluses.tk/api.other.registerDevice")) {
+                SharedPreferences preferences = getSharedPreferences (UserEntity.CONFIG_FILE,
+                        Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit ();
+                editor.putBoolean ("device.registered", true);
+                editor.apply ();
 
-            Log.i ("Device", "Device registered");
+                Log.i ("Device", "Device registered");
+            } else if (data.HOST.equals ("")) {
+
+            }
         }
     }
 

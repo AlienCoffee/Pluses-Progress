@@ -166,6 +166,7 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
 
                 loadedUsersData = 0;
                 Log.i (this.getClass ().getSimpleName (), "Users: " + usersList.size ());
+
                 if (usersList.size () > 0) {
                     RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
                     form.addParam ("token", UserEntity.getProperty ("token"));
@@ -204,10 +205,12 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                 } catch (JSONException jsone) {
 
                 } catch (IndexOutOfBoundsException iobe) {
-                    iobe.printStackTrace ();
+
                 }
 
+                loadedProblemsData = 0;
                 Log.i (this.getClass ().getSimpleName (), "Loaded: " + loadedUsersData + " / " + usersList.size ());
+
                 if (loadedUsersData < usersList.size ()) {
                     RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserData");
                     form.addParam ("token", UserEntity.getProperty ("token"));
