@@ -81,24 +81,19 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
             solvedCheckBox = (CheckBox) itemView.findViewById (R.id.plusesCheckBoxView);
             problemIndexValue = (TextView) itemView.findViewById (R.id.problemIndexValue);
 
-            /*solvedCheckBox.setOnClickListener (new View.OnClickListener () {
+            solvedCheckBox.setOnClickListener (new View.OnClickListener () {
                 public void onClick (View v) {
-                    Log.i (this.getClass ().getSimpleName (), "Checkbox " + problemIndexValue.getText ()
-                                                                + " clicked: " + solvedCheckBox.isChecked ());
-                }
-            });*/
-            solvedCheckBox.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
-                public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
                     if (DiaryMenuPage.page.currentUser == -1) {
                         solvedCheckBox.setChecked (false);
                         return;
                     }
 
                     int index = Integer.parseInt (problemIndexValue.getText ().toString ());
-                    FragmentUsers.fragment.registerAttempt (entity.NAME, isChecked);
+                    FragmentUsers.fragment.registerAttempt (entity.NAME, solvedCheckBox.isChecked ());
                     Log.i (this.getClass ().getSimpleName (), "Attempt registered: problem "
                                                                 + index + "(" + entity.NAME + ")"
-                                                                + " - value " + isChecked);
+                                                                + " - value " + solvedCheckBox.isChecked ()
+                                                                + " - user " + DiaryMenuPage.page.currentUser);
                 }
             });
         }

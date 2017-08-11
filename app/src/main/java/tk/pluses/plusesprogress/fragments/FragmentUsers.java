@@ -19,8 +19,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import tk.pluses.plusesprogress.DiaryMenuPage;
 import tk.pluses.plusesprogress.R;
@@ -229,7 +233,34 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     getLoaderManager ().restartLoader (0, args, this);
                 }
             } else if (data.HOST.equals ("http://pluses.tk/api.users.getUserResults")) {
-                Log.i (this.getClass ().getSimpleName (), data.getField ("message"));
+                Log.i (this.getClass ().getSimpleName (), "User's results: "
+                                                            + data.getField ("message"));
+                try {
+                    String message = data.getField ("message");
+                    JSONArray tasksArray = new JSONArray (message);
+
+                    Set <String> solved = new HashSet <> ();
+                    for (int i = 0; i < tasksArray.length (); i ++) {
+                        String taskContent = tasksArray.getString (i);
+                        JSONObject taskObject = new JSONObject (taskContent);
+
+                        if (taskObject.has ("task_status")
+                                && taskObject.has ("task_index")
+                                && Boolean.parseBoolean (taskObject.getString ("task_status"))) {
+                            solved.add (taskObject.getString ("task_index"));
+                        }
+                    }
+
+                    for (ProblemEntity entity: problemsList) {
+                        if (solved.contains (entity.INDEX + "")) {
+                            entity.setSolved (true);
+                        } else {
+                            entity.setSolved (false);
+                        }
+                    }
+
+                    problemsRecycler.getAdapter ().notifyDataSetChanged ();
+                } catch (JSONException jsone) {}
             }
         }
         loadingProblems.setVisibility (View.GONE);
@@ -253,6 +284,8 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
         form.addParam ("topic_id", DiaryMenuPage.page.currentTopic + "");
         form.addParam ("problem", problem);
         form.addParam ("result", (result ? "true" : "false"));
+        Log.i (this.getClass ().getSimpleName (), "Verdict: " + (result ? "true" : "false")
+                                                    + " - User: " + DiaryMenuPage.page.currentUser);
 
         Bundle args = new Bundle ();
         args.putSerializable ("form", form);
