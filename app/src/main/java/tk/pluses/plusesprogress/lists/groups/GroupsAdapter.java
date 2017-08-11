@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tk.pluses.plusesprogress.IndexPage;
+import tk.pluses.plusesprogress.DiaryMenuPage;
 import tk.pluses.plusesprogress.R;
 
 public class GroupsAdapter extends RecyclerView.Adapter {
@@ -94,9 +94,9 @@ public class GroupsAdapter extends RecyclerView.Adapter {
                 public void onClick (View v) {
                     int groupID = Integer.parseInt (groupIDValue.getText ().toString ());
                     Log.i (this.getClass ().getSimpleName (), "Selected group: " + groupID);
-                    IndexPage.page.currentGroup = groupID;
+                    DiaryMenuPage.page.currentGroup = groupID;
 
-                    IndexPage.page.switchFragment (R.id.navigation_item_topics);
+                    DiaryMenuPage.page.switchFragment (R.id.navigation_item_topics);
                 }
             });
 

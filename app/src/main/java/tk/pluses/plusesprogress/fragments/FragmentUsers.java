@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import tk.pluses.plusesprogress.IndexPage;
+import tk.pluses.plusesprogress.DiaryMenuPage;
 import tk.pluses.plusesprogress.R;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
@@ -51,9 +51,15 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
     private int loadedUsersData = 0,
                 loadedProblemsData = 0;
 
+    /**
+     *
+     * */
+    public static FragmentUsers fragment;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FragmentUsers.fragment = this;
     }
 
     @Override
@@ -87,7 +93,7 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
 
         RequestForm form = new RequestForm ("http://pluses.tk/api.topics.getTopicContent");
         form.addParam ("token", UserEntity.getProperty ("token"));
-        form.addParam ("topic_id", IndexPage.page.currentTopic + "");
+        form.addParam ("topic_id", DiaryMenuPage.page.currentTopic + "");
 
         Bundle args = new Bundle ();
         args.putSerializable ("form", form);
@@ -116,6 +122,7 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                 answerMessage.setTextColor (Color.RED);
             }
         } else if (data.TYPE.equals ("Success") && data.CODE == 1000) {
+            answerMessage.setText (""); // Clearing error message view
             if (data.HOST.equals ("http://pluses.tk/api.topics.getTopicContent")) {
                 problemsList = new ArrayList <> ();
                 loadedProblemsData = 0;
@@ -138,11 +145,12 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     ProblemsAdapter adapter = new ProblemsAdapter (getActivity (), problemsList);
                     problemsRecycler.setAdapter (adapter);
                 } catch (JSONException jsone) {}
+                problemsRecycler.setEnabled (true);
 
-                // Next step - to loac all users from group list
+                // Next step - to load all users from group list
                 RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupUsers");
                 form.addParam ("token", UserEntity.getProperty ("token"));
-                form.addParam ("group_id", IndexPage.page.currentGroup + "");
+                form.addParam ("group_id", DiaryMenuPage.page.currentGroup + "");
 
                 Bundle args = new Bundle ();
                 args.putSerializable ("form", form);
@@ -220,6 +228,8 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
                     args.putSerializable ("form", form);
                     getLoaderManager ().restartLoader (0, args, this);
                 }
+            } else if (data.HOST.equals ("http://pluses.tk/api.users.getUserResults")) {
+                Log.i (this.getClass ().getSimpleName (), data.getField ("message"));
             }
         }
         loadingProblems.setVisibility (View.GONE);
@@ -228,7 +238,52 @@ public class FragmentUsers extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoaderReset (Loader <RequestResult> loader) {
+        problemsRecycler.setEnabled (false);
+    }
 
+    public void registerAttempt (String problem, boolean result) {
+        if (DiaryMenuPage.page.currentUser == -1) {
+            return; // No user selected in list
+        }
+
+        RequestForm form = new RequestForm ("http://pluses.tk/api.topics.registerAttempt");
+        form.addParam ("token", UserEntity.getProperty ("token"));
+        form.addParam ("user_id", DiaryMenuPage.page.currentUser + "");
+        form.addParam ("group_id", DiaryMenuPage.page.currentGroup + "");
+        form.addParam ("topic_id", DiaryMenuPage.page.currentTopic + "");
+        form.addParam ("problem", problem);
+        form.addParam ("result", (result ? "true" : "false"));
+
+        Bundle args = new Bundle ();
+        args.putSerializable ("form", form);
+        getLoaderManager ().restartLoader (0, args, this);
+    }
+
+    public void updateProblemsMask (int nextUserID) {
+        // TODO: Save previous state of mask
+
+        this._resetProblemsMask ();
+        DiaryMenuPage.page.currentUser = nextUserID;
+        // TODO: Loading previous version from file
+
+        RequestForm form = new RequestForm ("http://pluses.tk/api.users.getUserResults");
+        form.addParam ("token", UserEntity.getProperty ("token"));
+        form.addParam ("user_id", DiaryMenuPage.page.currentUser + "");
+        form.addParam ("group_id", DiaryMenuPage.page.currentGroup + "");
+        form.addParam ("topic_id", DiaryMenuPage.page.currentTopic + "");
+
+        Bundle args = new Bundle ();
+        args.putSerializable ("form", form);
+        getLoaderManager ().restartLoader (0, args, this);
+    }
+
+    private void _resetProblemsMask () {
+        for (ProblemEntity entity: problemsList) {
+            entity.setSolved (false);
+        }
+
+        Log.i (this.getClass ().getSimpleName (), "Mask turned to default state");
+        problemsRecycler.getAdapter ().notifyDataSetChanged ();
     }
 
 }

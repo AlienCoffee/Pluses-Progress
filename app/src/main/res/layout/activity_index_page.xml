@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:id="@+id/LinearLayout1"
     android:orientation="vertical"
-    tools:context=".IndexPage">
+    tools:context=".DiaryMenuPage">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/menu_drawer_layout"

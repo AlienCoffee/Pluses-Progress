@@ -9,6 +9,7 @@ public class UserListEntity {
 
     private String [] results;
     private String mask;
+    private boolean selected;
 
     public UserListEntity (int id, int size) {
         this.results = new String [size];
@@ -27,6 +28,11 @@ public class UserListEntity {
 
     public int getLocalPluses () { return localPluses; }
     public void setTotalPluses (int localPluses) { this.localPluses = localPluses; }
+
+    public boolean isSelected () { return selected; }
+    public void setSelected (boolean selected) {
+        this.selected = selected;
+    }
 
     public String [] getResults () { return results; }
 

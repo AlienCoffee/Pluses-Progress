@@ -27,7 +27,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import tk.pluses.plusesprogress.IndexPage;
+import tk.pluses.plusesprogress.DiaryMenuPage;
 import tk.pluses.plusesprogress.R;
 import tk.pluses.plusesprogress.io.RequestForm;
 import tk.pluses.plusesprogress.io.RequestIO;
@@ -74,7 +74,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
 
         RequestForm form = new RequestForm ("http://pluses.tk/api.groups.getGroupTopics");
         form.addParam ("token", UserEntity.getProperty ("token"));
-        form.addParam ("group_id", IndexPage.page.currentGroup + "");
+        form.addParam ("group_id", DiaryMenuPage.page.currentGroup + "");
 
         Bundle args = new Bundle ();
         args.putSerializable ("form", form);
@@ -107,7 +107,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                     + " (comment: " + data.getField ("message") + ")");
             if (data.CODE == 6000 /* NO INTERNET CONNECTION */) {
                 // It's especial situation when data must be loaded from data-file
-                File topicsListFile = new File (dataFolder, "group-" + IndexPage.page.currentGroup+ "-topics-list.dat");
+                File topicsListFile = new File (dataFolder, "group-" + DiaryMenuPage.page.currentGroup+ "-topics-list.dat");
                 if (!topicsListFile.exists ()) {
                     // Nothing was cached -> stop working
                     answerMessage.setText ("No internet and nothing was saved before");
@@ -178,7 +178,7 @@ public class FragmentTopics extends Fragment implements LoaderManager.LoaderCall
                     JSONArray topicsArray = new JSONArray (topics);
                     int length = topicsArray.length ();
 
-                    File topicsListFile = new File (dataFolder, "group-" + IndexPage.page.currentGroup + "-topics-list.dat");
+                    File topicsListFile = new File (dataFolder, "group-" + DiaryMenuPage.page.currentGroup + "-topics-list.dat");
                     if (!topicsListFile.exists ()) {
                         try {
                             topicsListFile.createNewFile ();

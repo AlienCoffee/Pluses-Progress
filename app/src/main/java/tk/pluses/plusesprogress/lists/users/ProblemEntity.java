@@ -10,10 +10,17 @@ public class ProblemEntity {
     public final String NAME;
     public final boolean RATING;
 
+    private boolean solved;
+
     public ProblemEntity (int index, String name, int rating) {
         this.RATING = rating == 1 ? true : false;
         this.INDEX = index;
         this.NAME = name;
+    }
+
+    public boolean isSolved () { return solved; }
+    public void setSolved (boolean solved) {
+        this.solved = solved;
     }
 
 }
