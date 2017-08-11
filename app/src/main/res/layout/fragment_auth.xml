@@ -7,7 +7,7 @@
     android:id="@+id/activity_index_page"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="tk.pluses.plusesprogress.IndexPage">
+    tools:context="tk.pluses.plusesprogress.DiaryMenuPage">
 
     <ImageView
         android:id="@+id/mainLogo"

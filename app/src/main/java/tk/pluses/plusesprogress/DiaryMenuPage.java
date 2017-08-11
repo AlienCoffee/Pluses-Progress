@@ -31,13 +31,17 @@ import tk.pluses.plusesprogress.io.RequestIO;
 import tk.pluses.plusesprogress.io.RequestResult;
 import tk.pluses.plusesprogress.user.UserEntity;
 
-public class IndexPage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+public class DiaryMenuPage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
                                                             LoaderManager.LoaderCallbacks <RequestResult> {
 
     private NavigationView navigation;
     private DrawerLayout drawer;
 
-    public static IndexPage page;
+    /**
+     *
+     * */
+    public static DiaryMenuPage page;
+
     public int currentGroup = -1,
                 currentTopic = -1,
                 currentUser = -1;
@@ -47,7 +51,7 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_index_page);
 
-        IndexPage.page = this;
+        DiaryMenuPage.page = this;
         SharedPreferences preferences = getSharedPreferences (UserEntity.CONFIG_FILE,
                                                                 Context.MODE_PRIVATE);
         UserEntity.setPreferences (preferences);
@@ -78,6 +82,9 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
 
         navigation = (NavigationView) findViewById (R.id.menu_navigation_view);
         navigation.setNavigationItemSelectedListener (this);
+
+        // To show first step of diary tree
+        switchFragment (R.id.navigation_item_diary);
     }
 
     @Override
@@ -85,15 +92,6 @@ public class IndexPage extends AppCompatActivity implements NavigationView.OnNav
         super.onPause ();
 
         UserEntity.storeInFile ();
-    }
-
-    public void registerAttempt (int problem, boolean result) {
-        RequestForm form = new RequestForm ("http://pluses.tk/api.topics.registerAttempt");
-        form.addParam ("token", UserEntity.getProperty ("token"));
-
-        Bundle args = new Bundle ();
-        args.putSerializable ("form", form);
-        getSupportLoaderManager ().restartLoader (0, args, this);
     }
 
     public String getDeviceCode () {

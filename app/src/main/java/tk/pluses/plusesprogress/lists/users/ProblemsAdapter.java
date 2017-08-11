@@ -14,10 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tk.pluses.plusesprogress.IndexPage;
+import tk.pluses.plusesprogress.DiaryMenuPage;
 import tk.pluses.plusesprogress.R;
-import tk.pluses.plusesprogress.lists.groups.GroupEntity;
-import tk.pluses.plusesprogress.lists.groups.GroupsAdapter;
+import tk.pluses.plusesprogress.fragments.FragmentUsers;
 
 /**
  * Created by Андрей on 05.08.2017.
@@ -50,6 +49,7 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
         ProblemEntity entity = problemsList.get (position);
         ProblemsViewHolder customHolder = (ProblemsViewHolder) holder;
 
+        customHolder.entity   = entity;
         customHolder.position = position;
 
         String name = entity.NAME.toUpperCase ();
@@ -58,6 +58,7 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
         }
         customHolder.nameValue.setText (name);
         customHolder.problemIndexValue.setText (entity.INDEX + "");
+        customHolder.solvedCheckBox.setChecked (entity.isSolved ());
     }
 
     @Override
@@ -71,6 +72,7 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
         public TextView nameValue,
                         problemIndexValue;
         private CheckBox solvedCheckBox;
+        public ProblemEntity entity;
 
         public ProblemsViewHolder (View itemView) {
             super (itemView);
@@ -87,8 +89,16 @@ public class ProblemsAdapter extends RecyclerView.Adapter {
             });*/
             solvedCheckBox.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
                 public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
+                    if (DiaryMenuPage.page.currentUser == -1) {
+                        solvedCheckBox.setChecked (false);
+                        return;
+                    }
+
                     int index = Integer.parseInt (problemIndexValue.getText ().toString ());
-                    IndexPage.page.registerAttempt (index, isChecked);
+                    FragmentUsers.fragment.registerAttempt (entity.NAME, isChecked);
+                    Log.i (this.getClass ().getSimpleName (), "Attempt registered: problem "
+                                                                + index + "(" + entity.NAME + ")"
+                                                                + " - value " + isChecked);
                 }
             });
         }
