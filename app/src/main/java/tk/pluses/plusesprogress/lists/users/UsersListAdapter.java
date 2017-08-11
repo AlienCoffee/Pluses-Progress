@@ -108,9 +108,10 @@ public class UsersListAdapter extends RecyclerView.Adapter {
 
                     int userID = Integer.parseInt (userIDValue.getText ().toString ());
                     if (DiaryMenuPage.page.currentUser != userID) {
-                        Log.i (this.getClass ().getSimpleName (), "Selected user: " + userID);
-                        FragmentUsers.fragment.updateProblemsMask (userID);
+                        // Or may be put next 2 lines here to prevent too often loadings
                     }
+                    Log.i (this.getClass ().getSimpleName (), "Selected user: " + userID);
+                    FragmentUsers.fragment.updateProblemsMask (userID);
                 }
             });
 
