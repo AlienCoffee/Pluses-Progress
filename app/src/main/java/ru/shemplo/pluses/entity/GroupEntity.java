@@ -1,8 +1,5 @@
-package tk.pluses.plusesprogress.entities;
+package ru.shemplo.pluses.entity;
 
-
-import java.util.List;
-import java.util.Random;
 
 public class GroupEntity {
     private final String name, teacher;
@@ -11,11 +8,10 @@ public class GroupEntity {
 
     //TODO: remove this
     static private int tmp = 1;
-    public GroupEntity() {
-        name = "G" + tmp;
-        tmp++;
+    public GroupEntity(int id, int population) {
         teacher = "Alexey Rusakov";
-        size = 42;
+        this.size = population;
+        this.name = "G" + id;
     }
 
     //TODO: add constructors;

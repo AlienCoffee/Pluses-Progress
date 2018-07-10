@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="tk.pluses.plusesprogress">
+          package="ru.shemplo.pluses">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".layout.DiaryMain"
+            android:name="ru.shemplo.pluses.layout.DiaryMain"
             android:label="MAIN">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

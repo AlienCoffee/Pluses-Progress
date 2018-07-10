@@ -1,4 +1,4 @@
-package tk.pluses.plusesprogress.layout;
+package ru.shemplo.pluses.layout;
 
 
 import android.os.Bundle;
@@ -6,12 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import tk.pluses.plusesprogress.adapters.GroupAdapter;
-import tk.pluses.plusesprogress.R;
-import tk.pluses.plusesprogress.entities.GroupEntity;
+import ru.shemplo.pluses.adapter.GroupAdapter;
+import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 public class DiaryMain extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -24,10 +24,7 @@ public class DiaryMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary);
 
-        groups = new ArrayList<>();//TODO: remove
-        for (int i = 0; i < 30; i++) {
-            groups.add(new GroupEntity());
-        }
+        groups = DataProvider.getGroups ();
         //TODO: add favourites
 
         recyclerView = (RecyclerView) findViewById(R.id.group_recycler_view);
