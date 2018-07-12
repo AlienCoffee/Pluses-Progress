@@ -18,7 +18,7 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="F0101" />
+        tools:text="---" />
 
     <TextView
         android:id="@+id/group_item_tv1"
@@ -31,6 +31,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/group_item_teacher" />
 
+    <!--
+        TODO: Here would be better to set icon within string
+        String is tooooo long and hard to read each time
+     -->
     <TextView
         android:id="@+id/group_item_tv2"
         android:layout_width="wrap_content"
@@ -38,7 +42,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:text="Преподаватель: "
+        android:text="% "
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/group_item_name" />
 
@@ -66,6 +70,6 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintEnd_toStartOf="@+id/group_item_tv1"
         app:layout_constraintTop_toTopOf="@+id/group_item_tv1"
-        tools:text="23" />
+        tools:text="--" />
 
 </android.support.constraint.ConstraintLayout>
