@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="ru.shemplo.pluses.layout.DiaryMain"
+            android:name="ru.shemplo.pluses.layout.DiaryMainActivity"
             android:label="MAIN">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
