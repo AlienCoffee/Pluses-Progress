@@ -1,8 +1,5 @@
-package tk.pluses.plusesprogress.entities;
+package ru.shemplo.pluses.entities;
 
-
-import java.util.List;
-import java.util.Random;
 
 public class GroupEntity {
     private final String name, teacher;

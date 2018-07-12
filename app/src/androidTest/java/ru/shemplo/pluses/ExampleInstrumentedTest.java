@@ -1,4 +1,4 @@
-package tk.pluses.plusesprogress;
+package ru.shemplo.pluses;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -1,4 +1,4 @@
-package tk.pluses.plusesprogress;
+package ru.shemplo.pluses;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package tk.pluses.plusesprogress.adapters;
+package ru.shemplo.pluses.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,8 +8,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import tk.pluses.plusesprogress.R;
-import tk.pluses.plusesprogress.entities.GroupEntity;
+import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.entities.GroupEntity;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
     private List<GroupEntity> groups;
