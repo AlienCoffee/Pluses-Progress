@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.network.DataProvider;
 
 public class DiaryMainActivity extends AppCompatActivity {
 
@@ -15,21 +16,16 @@ public class DiaryMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.testing_dummy);
+        /*setContentView(R.layout.frame_layout);
 
-        /*
         GroupsFragment groupsFragment = new GroupsFragment();
         groupsFragment.setContext(this);
 
-        List<GroupEntity> groups;
-        groups = new ArrayList<>();//TODO: remove
-        for (int i = 0; i < 30; i++) {
-            groups.add(new GroupEntity());
-        }
+
         //TODO: add favourites
 
-        groupsFragment.setData(groups);
-        getFragmentManager().beginTransaction().add(R.id.group_recycler_view, groupsFragment).commit();
-        */
+        groupsFragment.setData(DataProvider.getGroups());
+        getFragmentManager().beginTransaction().add(R.id.main_frame, groupsFragment).commit();*/
     }
 
     public void something(View view) {

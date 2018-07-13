@@ -1,7 +1,7 @@
 package ru.shemplo.pluses.layout;
 import ru.shemplo.pluses.R;
-import ru.shemplo.pluses.adapters.GroupAdapter;
-import ru.shemplo.pluses.entities.GroupEntity;
+import ru.shemplo.pluses.adapter.GroupAdapter;
+import ru.shemplo.pluses.entity.GroupEntity;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -47,9 +47,7 @@ public class GroupsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.e("dbg", "onCreateView");
-        View tmp = inflater.inflate(R.layout.group_recycler_view, container);
-        recyclerView = (RecyclerView) tmp.findViewById(R.id.group_recycler_view);
-        return tmp;
+        return inflater.inflate(R.layout.group_recycler_view, null);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class GroupsFragment extends Fragment {
         Log.e("dbg", "onViewCreated");
         super.onViewCreated (view, savedInstanceState);
 
-//        recyclerView = (RecyclerView) getView().findViewById(R.id.group_recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.group_recycler_view);
 
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);

@@ -1,6 +1,7 @@
 package ru.shemplo.pluses.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public GroupAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.e("dbg: adapter", "onCreate");
         View item = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.group_item, parent, false);
         return new ViewHolder(item);
@@ -39,6 +41,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        Log.e("dbg: adapter", "onBind " + position);
         GroupEntity group = groups.get(position);
         holder.groupName.setText(group.getName());
         holder.teacherName.setText(group.getTeacher());
