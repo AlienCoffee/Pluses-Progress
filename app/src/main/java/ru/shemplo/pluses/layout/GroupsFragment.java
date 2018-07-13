@@ -60,7 +60,7 @@ public class GroupsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new GroupAdapter(groups);
+        adapter = new GroupAdapter (groups);
         recyclerView.setAdapter(adapter);
     }
 }
