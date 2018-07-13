@@ -11,7 +11,11 @@ import android.view.View;
 import android.widget.Button;
 
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.network.AppConnection;
 import ru.shemplo.pluses.network.DataProvider;
+import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.service.DataPullService;
 
 public class DiaryMainActivity extends AppCompatActivity {
@@ -57,6 +61,19 @@ public class DiaryMainActivity extends AppCompatActivity {
             public void onClick (View v) {
                 int value = Integer.parseInt (preferences.getString ("i", "0"));
                 Log.i ("DMA", "Current value: " + value);
+            }
+
+        });
+
+        button = (Button) findViewById (R.id.button_send);
+        button.setOnClickListener (new View.OnClickListener () {
+
+            @Override
+            public void onClick (View v) {
+                Log.i ("DMA", "Sending command message");
+                AppConnection connection = new AppConnection (false);
+                Log.i ("DMA", "Connection " + connection + " " + connection.isAlive ());
+                connection.sendMessage (new CommandMessage (AppMessage.MessageDirection.CTS, "dsf"));
             }
 
         });
