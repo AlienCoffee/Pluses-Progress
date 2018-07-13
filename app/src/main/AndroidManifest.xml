@@ -15,14 +15,24 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="ru.shemplo.pluses.layout.DiaryMain"
+            android:name=".layout.DiaryMainActivity"
             android:label="MAIN">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+
+        <service android:name=".network.service.DataPullService"/>
+
+        <receiver
+            android:name=".network.service.PullReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="PR_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
