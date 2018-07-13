@@ -12,20 +12,6 @@ import java.util.List;
 
 public class DataPullService extends Service {
 
-    @SuppressWarnings ("unused")
-    public static boolean isRunning (Context context) {
-        ActivityManager manager = (ActivityManager)
-                context.getSystemService (ACTIVITY_SERVICE);
-        List <ActivityManager.RunningServiceInfo> services =
-                manager.getRunningServices (256);
-        for (int i = 0; i < services.size (); i++) {
-            ActivityManager.RunningServiceInfo info = services.get (i);
-            Log.i("Service", "Process " + info.process + " with component "
-                    + info.service.getClassName());
-        }
-        return true;
-    }
-
     @Nullable
     @Override
     public IBinder onBind (Intent intent) {
@@ -40,40 +26,26 @@ public class DataPullService extends Service {
 
             @Override
             public void run () {
-                /*
+            while (true) {
                 try {
-                    Thread.sleep (30 * 1000);
-                    Log.i ("DPS", "I was started and running after closed application");
+                    // Do one time each 1.5 minutes
+                    Thread.sleep (10 * 1000);
+                    Log.i ("DPS-Thread", "I'm alive");
 
                     Intent call = new Intent ();
                     call.setAction ("PR_ACTION");
                     call.addCategory (Intent.CATEGORY_DEFAULT);
                     sendBroadcast (call);
-                } catch (InterruptedException ie){
-                    Log.i ("DPS", "I was interrupted");
+                } catch (InterruptedException ie) {
+                    Log.i ("DPS-Thread", "I was interrupted");
+                    return;
                 }
-                */
-
-                while (true) {
-                    try {
-                        // Do one time each 1.5 minutes
-                        Thread.sleep (90 * 1000);
-                        Log.i ("DPS-Thread", "I'm alive");
-
-                        Intent call = new Intent ();
-                        call.setAction ("PR_ACTION");
-                        call.addCategory (Intent.CATEGORY_DEFAULT);
-                        sendBroadcast (call);
-                    } catch (InterruptedException ie) {
-                        Log.i ("DPS-Thread", "I was interrupted");
-                        return;
-                    }
-                }
+            }
             }
 
         }, "DataPullService-Thread");
         thread.start ();
-        // stopSelf ();
+        stopSelf ();
 
         return Service.START_STICKY;
     }
