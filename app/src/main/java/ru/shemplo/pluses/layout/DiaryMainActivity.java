@@ -14,7 +14,11 @@ import android.widget.Button;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.adapter.TaskAdapter;
+import ru.shemplo.pluses.network.AppConnection;
 import ru.shemplo.pluses.network.DataProvider;
+import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.service.DataPullService;
 
 public class DiaryMainActivity extends AppCompatActivity {
@@ -63,10 +67,8 @@ public class DiaryMainActivity extends AppCompatActivity {
             }
 
         });*/
-
-
-
-
+      
+        setContentView(R.layout.frame_layout);
 
         GroupsFragment groupsFragment = new GroupsFragment();
         groupsFragment.setContext(this);
