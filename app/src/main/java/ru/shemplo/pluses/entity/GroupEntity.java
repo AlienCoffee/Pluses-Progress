@@ -1,7 +1,9 @@
 package ru.shemplo.pluses.entity;
 
 
-public class GroupEntity {
+import java.io.Serializable;
+
+public class GroupEntity implements Serializable {
     private final String name, teacher;
     private int size;
     //TODO: any links to students?

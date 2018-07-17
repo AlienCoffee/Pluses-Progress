@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ru.shemplo.pluses.network.message.AppMessage;
@@ -19,9 +18,8 @@ import ru.shemplo.pluses.network.message.PPMessage;
 import ru.shemplo.pluses.util.BytesManip;
 
 import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.CTS;
-import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.STC;
 
-public class AppConnection implements AutoCloseable {
+public class AppConnection {
 
     private boolean isAlive = true;
 
@@ -160,7 +158,6 @@ public class AppConnection implements AutoCloseable {
         return INPUT.poll ();
     }
 
-    @Override
     public void close () throws Exception {
         THREAD.interrupt ();
     }
