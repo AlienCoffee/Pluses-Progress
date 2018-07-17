@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.entity.TaskEntity;
+import ru.shemplo.pluses.entity.TopicEntity;
 
 public class DataProvider {
 
@@ -20,16 +22,31 @@ public class DataProvider {
     // ----------------------------------------------- //
     /////////////////////////////////////////////////////
 
-    public static List <GroupEntity> getGroups () {
-        List <GroupEntity> groups = new ArrayList <> ();
-        Random random = new Random ();
+    public static List<GroupEntity> getGroups() {
+        List<GroupEntity> groups = new ArrayList<>();
+        Random random = new Random();
         for (int i = 0; i < 30; i++) {
-            int pop = random.nextInt (50), id = i + 1;
-            groups.add (new GroupEntity (id, pop));
+            int pop = random.nextInt(50), id = i + 1;
+            groups.add(new GroupEntity(id, pop));
         }
 
         return groups;
     }
+
+    //TODO: constructor of StudentEntity?
+    public static List<TopicEntity> getTopics() {
+        List<TopicEntity> topics = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 15; i++) {
+            List<TaskEntity> tasks = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                tasks.add(new TaskEntity(j + "", random.nextBoolean()));
+            }
+            topics.add(new TopicEntity("Topic" + i, tasks));
+        }
+        return topics;
+    }
+
 
     // Next methods is for the support
 

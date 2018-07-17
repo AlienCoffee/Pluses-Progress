@@ -16,7 +16,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private List<GroupEntity> groups;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView groupName, teacherName, studentsCount; //TODO: anything more?
+        private TextView groupName, teacherName, studentsCount; //TODO: anything more?
 
 
         public ViewHolder(View v) {

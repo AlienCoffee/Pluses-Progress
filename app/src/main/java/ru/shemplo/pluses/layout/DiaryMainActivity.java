@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.adapter.TaskAdapter;
 import ru.shemplo.pluses.network.DataProvider;
 import ru.shemplo.pluses.network.service.DataPullService;
 
@@ -21,7 +24,7 @@ public class DiaryMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+/*
         final Intent intentDataPullStart = new Intent (this, DataPullService.class);
         final Intent intentDataPullStop = new Intent (this, DataPullService.class);
         final SharedPreferences preferences =
@@ -59,20 +62,31 @@ public class DiaryMainActivity extends AppCompatActivity {
                 Log.i ("DMA", "Current value: " + value);
             }
 
-        });
+        });*/
 
-        /*
-        setContentView(R.layout.frame_layout);
+
+
+
 
         GroupsFragment groupsFragment = new GroupsFragment();
         groupsFragment.setContext(this);
+        groupsFragment.setData(DataProvider.getGroups());
 
-
+        TopicsFragment topicsFragment = new TopicsFragment();
+        topicsFragment.setContext(this);
+        topicsFragment.setData(DataProvider.getTopics());
         //TODO: add favourites
 
-        groupsFragment.setData(DataProvider.getGroups());
-        getFragmentManager().beginTransaction().add(R.id.main_frame, groupsFragment).commit();
-        */
+        //setContentView(R.layout.frame_layout);
+        //getFragmentManager().beginTransaction().add(R.id.main_frame, groupsFragment).commit();
+        //getFragmentManager().beginTransaction().add(R.id.main_frame, topicsFragment).commit();
+
+        setContentView(R.layout.topic_item);
+        RecyclerView test = (RecyclerView) findViewById(R.id.task_recycler_view);
+        test.setLayoutManager(new GridLayoutManager(this, 8));
+        test.setAdapter(new TaskAdapter(DataProvider.getTopics().get(10).getTasks()));
+
+
     }
 
     public void something(View view) {
