@@ -1,24 +1,17 @@
 package ru.shemplo.pluses.network;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
-import javax.net.ssl.SSLContextSpi;
 
 import ru.shemplo.pluses.entity.GroupEntity;
-import ru.shemplo.pluses.util.BytesManip;
+import ru.shemplo.pluses.network.service.PullReceiver;
 
 public class DataProvider {
 
@@ -28,12 +21,15 @@ public class DataProvider {
         this.ROOT_DIR = context.getFilesDir ();
     }
 
+
+    // Next methods is for the support
     public List <GroupEntity> getGroups () {
         File groupsFile = new File (ROOT_DIR, "groups.bin");
         List <GroupEntity> out = new ArrayList <> ();
 
         if (!groupsFile.exists ()
                 || !groupsFile.canRead ()) {
+            PullReceiver.pullGroups ();
             return out;
         }
 

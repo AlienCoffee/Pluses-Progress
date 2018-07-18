@@ -158,6 +158,10 @@ public class AppConnection {
         return INPUT.poll ();
     }
 
+    public void rollbackMessage (Message message) {
+        this.INPUT.add (message);
+    }
+
     public void close () throws Exception {
         THREAD.interrupt ();
     }
