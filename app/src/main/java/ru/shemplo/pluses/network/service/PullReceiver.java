@@ -6,10 +6,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
-import java.util.Objects;
+import java.util.List;
+import java.util.Random;
+
+import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.network.AppConnection;
+import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ListMessage;
+import ru.shemplo.pluses.network.message.Message;
 
 public class PullReceiver extends BroadcastReceiver {
 
@@ -25,4 +34,66 @@ public class PullReceiver extends BroadcastReceiver {
 
         preferences.edit ().putString ("i", "" + (value + 1)).apply ();
     }
+
+    public static void pullGroups () {
+        Thread thread = new Thread (new Runnable () {
+
+            @Override
+            public void run () {
+                AppConnection connection = new AppConnection (false);
+                Message message = new CommandMessage (AppMessage.MessageDirection.CTS,
+                        "select groups");
+                int messageID = message.getID ();
+                connection.sendMessage (message);
+
+                while (connection.isAlive ()) {
+                    Message answer = connection.pollMessage ();
+                    if (answer == null) {
+                        try {
+                            Thread.sleep (250);
+                            continue;
+                        } catch (InterruptedException ie) { return; }
+                    }
+
+                    if (answer instanceof ListMessage) {
+                        ListMessage <Integer> list = (ListMessage <Integer>) answer;
+                        if (list.getReplyMessage () == null) {
+                            // connection.rollbackMessage (answer);
+                            continue;
+                        } else if (list.getReplyMessage ().getID () != messageID) {
+                            // connection.rollbackMessage (answer);
+                            continue;
+                        }
+
+                        List <Integer> ids = list.getList ();
+                        Random random = new Random ();
+
+                        FileOutputStream fos = null;
+                        try {
+                            fos = new FileOutputStream ("");
+                            ObjectOutputStream bos = new ObjectOutputStream (fos);
+                            bos.writeInt (ids.size ());
+
+                            for (int id : ids) {
+                                int population = 1 + random.nextInt (50);
+                                GroupEntity entity = new GroupEntity (id, population);
+                                bos.writeObject (entity);
+                            }
+                        } catch (IOException ioe) {
+                            ioe.printStackTrace ();
+                        } finally {
+                            if (fos != null) {
+                                try {
+                                    fos.close ();
+                                } catch (IOException ioe) {}
+                            }
+                        }
+                    }
+                }
+            }
+
+        }, "Pull-Groups-Thread");
+        thread.start ();
+    }
+
 }
