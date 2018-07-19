@@ -102,6 +102,7 @@ public class AppConnection {
                         }
                     }
                 } catch (IOException | InterruptedException ie) {
+                    Log.i ("AC", "Failed to connect");
                     if (socket != null) {
                         try {
                             socket.close ();
