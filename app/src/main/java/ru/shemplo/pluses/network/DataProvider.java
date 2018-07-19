@@ -1,6 +1,7 @@
 package ru.shemplo.pluses.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,20 +30,18 @@ public class DataProvider {
 
         if (!groupsFile.exists ()
                 || !groupsFile.canRead ()) {
-            PullReceiver.pullGroups ();
+            PullReceiver.pullGroups (ROOT_DIR);
             return out;
         }
 
         FileInputStream fis = null;
-        FileLock lock = null;
         try {
             fis = new FileInputStream (groupsFile);
-            lock = fis.getChannel ().lock ();
-
             ObjectInputStream bis = new ObjectInputStream (fis);
             int size = bis.readInt ();
             Object tmp = null;
 
+            Log.i ("DP", "Size: " + size + " (" + groupsFile.length () + ")");
             for (int i = 0; i < size; i++) {
                 tmp = bis.readObject ();
                 if (tmp instanceof  GroupEntity) {
@@ -53,12 +52,11 @@ public class DataProvider {
             // Nothing to do (just handle and ignore)
         } finally {
             try {
-                lock.release ();
                 fis.close ();
             } catch (Exception e) {}
         }
 
-        return new ArrayList <> ();
+        return out;
     }
 
 }

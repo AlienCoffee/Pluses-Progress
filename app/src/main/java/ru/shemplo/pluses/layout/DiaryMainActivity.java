@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.network.AppConnection;
 import ru.shemplo.pluses.network.DataProvider;
@@ -30,6 +31,7 @@ public class DiaryMainActivity extends AppCompatActivity {
         final Intent intentDataPullStop = new Intent (this, DataPullService.class);
         final SharedPreferences preferences =
                 getSharedPreferences ("PullData", Context.MODE_PRIVATE);
+        this.context = this;
 
         setContentView(R.layout.testing_dummy);
         Button button = (Button) findViewById (R.id.button);
@@ -70,10 +72,16 @@ public class DiaryMainActivity extends AppCompatActivity {
 
             @Override
             public void onClick (View v) {
+                DataProvider provider = new DataProvider (context);
+                for (GroupEntity entity : provider.getGroups ()) {
+                    System.out.println (entity.getName ());
+                }
+                /*
                 Log.i ("DMA", "Sending command message");
                 AppConnection connection = new AppConnection (false);
                 Log.i ("DMA", "Connection " + connection + " " + connection.isAlive ());
                 connection.sendMessage (new CommandMessage (AppMessage.MessageDirection.CTS, "dsf"));
+                */
             }
 
         });

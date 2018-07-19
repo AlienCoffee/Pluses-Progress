@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.channels.FileLock;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
@@ -35,7 +37,7 @@ public class PullReceiver extends BroadcastReceiver {
         preferences.edit ().putString ("i", "" + (value + 1)).apply ();
     }
 
-    public static void pullGroups () {
+    public static void pullGroups (final File root) {
         Thread thread = new Thread (new Runnable () {
 
             @Override
@@ -45,6 +47,7 @@ public class PullReceiver extends BroadcastReceiver {
                         "select groups");
                 int messageID = message.getID ();
                 connection.sendMessage (message);
+                Log.i ("PR", "Message sent");
 
                 while (connection.isAlive ()) {
                     Message answer = connection.pollMessage ();
@@ -69,8 +72,16 @@ public class PullReceiver extends BroadcastReceiver {
                         Random random = new Random ();
 
                         FileOutputStream fos = null;
+                        FileLock lock = null;
                         try {
-                            fos = new FileOutputStream ("");
+                            File file = new File (root, "groups.bin");
+                            Log.i ("PR", "File: " + root + " " + root.isDirectory ());
+                            if (!file.isFile ()) {
+                                file.createNewFile ();
+                            }
+
+                            fos = new FileOutputStream (file);
+                            lock = fos.getChannel ().lock ();
                             ObjectOutputStream bos = new ObjectOutputStream (fos);
                             bos.writeInt (ids.size ());
 
@@ -84,6 +95,7 @@ public class PullReceiver extends BroadcastReceiver {
                         } finally {
                             if (fos != null) {
                                 try {
+                                    lock.release ();
                                     fos.close ();
                                 } catch (IOException ioe) {}
                             }
