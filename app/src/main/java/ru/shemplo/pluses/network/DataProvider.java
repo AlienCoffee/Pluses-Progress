@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.entity.StudentEntity;
 import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
 
@@ -45,6 +46,15 @@ public class DataProvider {
             topics.add(new TopicEntity("Topic" + i, tasks));
         }
         return topics;
+    }
+
+    public static List<StudentEntity> getStudents() {
+        List<StudentEntity> students = new ArrayList<>();
+        Random random = new Random();
+        for(int i = 0; i < 16; i++) {
+            students.add(new StudentEntity("Ilya Ivanov " + random.nextInt(228)));
+        }
+        return students;
     }
 
 

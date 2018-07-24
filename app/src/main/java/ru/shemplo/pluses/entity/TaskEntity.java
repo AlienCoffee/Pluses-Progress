@@ -4,7 +4,7 @@ package ru.shemplo.pluses.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskEntity {
+public class TaskEntity implements MyEntity {
 
     private final String name; // Must be short
     private boolean isSolved = false;

@@ -45,7 +45,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         GroupEntity group = groups.get(position);
         holder.groupName.setText(group.getName());
         holder.teacherName.setText(group.getTeacher());
-        holder.studentsCount.setText(Integer.toString(group.getSize()));
+        holder.studentsCount.setText(group.getSize() + "");
     }
 
     @Override

@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class TopicsFragment extends Fragment {
         super.onViewCreated (view, savedInstanceState);
 
         topicsRecycler = (RecyclerView) view.findViewById(R.id.topic_recycler_view);
-        layoutManager = new LinearLayoutManager(context);
+        layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         topicsRecycler.setLayoutManager(layoutManager);
         adapter = new TopicAdapter(topics);
         topicsRecycler.setAdapter(adapter);

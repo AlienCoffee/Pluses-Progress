@@ -1,7 +1,7 @@
 package ru.shemplo.pluses.entity;
 
 
-public class GroupEntity {
+public class GroupEntity implements MyEntity{
     private final String name, teacher;
     private final int size;
     //TODO: any links to students?

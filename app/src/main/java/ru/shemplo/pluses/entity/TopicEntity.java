@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class TopicEntity {
+public class TopicEntity implements MyEntity {
     private final String name;
-    private final List<TaskEntity> tasks;
-    //TODO: fields
+    private final List<TaskEntity> tasks;//TODO: remove
 
     //TODO: add constructor
     private int x = 1;

@@ -66,8 +66,6 @@ public class DiaryMainActivity extends AppCompatActivity {
 
 
 
-
-
         GroupsFragment groupsFragment = new GroupsFragment();
         groupsFragment.setContext(this);
         groupsFragment.setData(DataProvider.getGroups());
@@ -76,15 +74,19 @@ public class DiaryMainActivity extends AppCompatActivity {
         topicsFragment.setContext(this);
         topicsFragment.setData(DataProvider.getTopics());
         //TODO: add favourites
+        StudentsFragment studentsFragment = new StudentsFragment();
+        studentsFragment.setContext(this);
+        studentsFragment.setData(DataProvider.getStudents());
 
-        //setContentView(R.layout.frame_layout);
+        setContentView(R.layout.frame_layout);
         //getFragmentManager().beginTransaction().add(R.id.main_frame, groupsFragment).commit();
         //getFragmentManager().beginTransaction().add(R.id.main_frame, topicsFragment).commit();
+        getFragmentManager().beginTransaction().add(R.id.main_frame, studentsFragment).commit();
 
-        setContentView(R.layout.topic_item);
+/*        setContentView(R.layout.topic_item);
         RecyclerView test = (RecyclerView) findViewById(R.id.task_recycler_view);
         test.setLayoutManager(new GridLayoutManager(this, 8));
-        test.setAdapter(new TaskAdapter(DataProvider.getTopics().get(10).getTasks()));
+        test.setAdapter(new TaskAdapter(DataProvider.getTopics().get(10).getTasks()));*/
 
 
     }
