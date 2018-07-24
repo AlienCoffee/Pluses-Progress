@@ -4,9 +4,13 @@ package ru.shemplo.pluses.entity;
 import java.io.Serializable;
 
 public class GroupEntity implements Serializable {
+
+    private static final long serialVersionUID = 0L;
+
     private final String name, teacher;
     private int size;
-    //TODO: any links to students?
+
+    public final int ID;
 
     //TODO: remove this
     static private int tmp = 1;
@@ -14,6 +18,8 @@ public class GroupEntity implements Serializable {
         teacher = "Alexey Rusakov";
         this.size = population;
         this.name = "G" + id;
+
+        this.ID = id;
     }
 
     //TODO: add constructors;

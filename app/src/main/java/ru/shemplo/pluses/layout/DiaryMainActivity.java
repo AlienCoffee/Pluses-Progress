@@ -73,15 +73,14 @@ public class DiaryMainActivity extends AppCompatActivity {
             @Override
             public void onClick (View v) {
                 DataProvider provider = new DataProvider (context);
+                StringBuilder sb = new StringBuilder ();
+
                 for (GroupEntity entity : provider.getGroups ()) {
-                    System.out.println (entity.getName ());
+                    sb.append (entity.getName ());
+                    sb.append (" ");
                 }
-                /*
-                Log.i ("DMA", "Sending command message");
-                AppConnection connection = new AppConnection (false);
-                Log.i ("DMA", "Connection " + connection + " " + connection.isAlive ());
-                connection.sendMessage (new CommandMessage (AppMessage.MessageDirection.CTS, "dsf"));
-                */
+
+                Log.i ("DMA", sb.toString ().trim ());
             }
 
         });

@@ -12,15 +12,20 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.channels.FileLock;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.network.AppConnection;
+import ru.shemplo.pluses.network.DataProvider;
 import ru.shemplo.pluses.network.message.AppMessage;
 import ru.shemplo.pluses.network.message.CommandMessage;
 import ru.shemplo.pluses.network.message.ListMessage;
 import ru.shemplo.pluses.network.message.Message;
+import ru.shemplo.pluses.util.LocalConsumer;
+
+import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.CTS;
 
 public class PullReceiver extends BroadcastReceiver {
 
@@ -38,74 +43,56 @@ public class PullReceiver extends BroadcastReceiver {
     }
 
     public static void pullGroups (final File root) {
-        Thread thread = new Thread (new Runnable () {
+        List <Message> commands = new ArrayList <> ();
+        commands.add (new CommandMessage (CTS,"select groups"));
+        LocalConsumer <Message> consumer = new LocalConsumer <Message> () {
 
             @Override
-            public void run () {
-                AppConnection connection = new AppConnection (false);
-                Message message = new CommandMessage (AppMessage.MessageDirection.CTS,
-                        "select groups");
-                int messageID = message.getID ();
-                connection.sendMessage (message);
-                Log.i ("PR", "Message sent");
+            public void consume (Message value) {
+                if (value instanceof ListMessage) {
+                    ListMessage <Integer> list = (ListMessage <Integer>) value;
+                    List <Integer> ids = list.getList ();
+                    Random random = new Random ();
+                    FileOutputStream fos = null;
+                    FileLock lock = null;
 
-                while (connection.isAlive ()) {
-                    Message answer = connection.pollMessage ();
-                    if (answer == null) {
-                        try {
-                            Thread.sleep (250);
-                            continue;
-                        } catch (InterruptedException ie) { return; }
-                    }
-
-                    if (answer instanceof ListMessage) {
-                        ListMessage <Integer> list = (ListMessage <Integer>) answer;
-                        if (list.getReplyMessage () == null) {
-                            // connection.rollbackMessage (answer);
-                            continue;
-                        } else if (list.getReplyMessage ().getID () != messageID) {
-                            // connection.rollbackMessage (answer);
-                            continue;
+                    try {
+                        File file = new File (root, "groups.bin");
+                        Log.i ("PR", "File: " + root + " " + root.isDirectory ());
+                        if (!file.isFile ()) {
+                            file.createNewFile ();
                         }
 
-                        List <Integer> ids = list.getList ();
-                        Random random = new Random ();
+                        fos = new FileOutputStream (file);
+                        lock = fos.getChannel ().lock ();
+                        ObjectOutputStream bos = new ObjectOutputStream (fos);
+                        bos.writeInt (ids.size ());
 
-                        FileOutputStream fos = null;
-                        FileLock lock = null;
-                        try {
-                            File file = new File (root, "groups.bin");
-                            Log.i ("PR", "File: " + root + " " + root.isDirectory ());
-                            if (!file.isFile ()) {
-                                file.createNewFile ();
-                            }
-
-                            fos = new FileOutputStream (file);
-                            lock = fos.getChannel ().lock ();
-                            ObjectOutputStream bos = new ObjectOutputStream (fos);
-                            bos.writeInt (ids.size ());
-
-                            for (int id : ids) {
-                                int population = 1 + random.nextInt (50);
-                                GroupEntity entity = new GroupEntity (id, population);
-                                bos.writeObject (entity);
-                            }
-                        } catch (IOException ioe) {
-                            ioe.printStackTrace ();
-                        } finally {
-                            if (fos != null) {
-                                try {
-                                    lock.release ();
-                                    fos.close ();
-                                } catch (IOException ioe) {}
-                            }
+                        for (int id : ids) {
+                            int population = 1 + random.nextInt (50);
+                            GroupEntity entity = new GroupEntity (id, population);
+                            bos.writeObject (entity);
+                        }
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace ();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                lock.release ();
+                                fos.close ();
+                            } catch (Exception e) {}
                         }
                     }
                 }
             }
 
-        }, "Pull-Groups-Thread");
-        thread.start ();
+        };
+
+        AppConnection.sendRequest (commands, false, consumer);
+    }
+
+    public static void pullGroupsInfo (List <Integer> ids) {
+
     }
 
 }

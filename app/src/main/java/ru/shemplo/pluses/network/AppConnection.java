@@ -4,20 +4,33 @@ import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.channels.FileLock;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
+import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ListMessage;
 import ru.shemplo.pluses.network.message.Message;
 import ru.shemplo.pluses.network.message.PPMessage;
 import ru.shemplo.pluses.util.BytesManip;
+import ru.shemplo.pluses.util.LocalConsumer;
 
 import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.CTS;
+import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.STC;
 
 public class AppConnection {
 
@@ -34,6 +47,8 @@ public class AppConnection {
 
             @Override
             public void run () {
+                // Log.i ("AC", "Thread started");
+
                 Socket socket = null;
                 try {
                     socket = new Socket ("shemplo.ru", 1999);
@@ -41,9 +56,7 @@ public class AppConnection {
                     final InputStream IS = socket.getInputStream ();
                     int reserved = -1;
 
-                    while (isAlive) {
-                        Log.i ("AppConnection", INPUT.size ()
-                                + " " + OUTPUT.size () +  " " + IS.available ());
+                    while (isAlive && socket.isConnected ()) {
                         boolean hasTasks = false;
                         if (IS.available () >= 4 && reserved == -1) {
                             byte [] buffer = new byte [4];
@@ -54,7 +67,7 @@ public class AppConnection {
                             }
 
                             reserved = BytesManip.B2I (buffer);
-                            Log.i ("AppConnection", "Reserved: " + reserved);
+                            Log.i ("AC", "Reserved: " + reserved);
                             hasTasks = true;
                         } else if (reserved != -1 && IS.available () >= reserved) {
                             byte [] buffer = new byte [reserved];
@@ -94,10 +107,18 @@ public class AppConnection {
                         if (out != null) {
                             sendMessage (OS, out);
                             hasTasks = true;
+
+                            // This is costyl but I don't know how to fix it
+                            if (out instanceof CommandMessage) {
+                                CommandMessage command = (CommandMessage) out;
+                                if ("exit".equals (command.getCommand ().trim ())) {
+                                    isAlive = false;
+                                    break;
+                                }
+                            }
                         }
 
                         if (!hasTasks) {
-                            Log.i ("AppConnection", "Nothing to do");
                             Thread.sleep (500);
                         }
                     }
@@ -112,6 +133,8 @@ public class AppConnection {
                     }
                     isAlive = false;
                 }
+
+                // Log.i ("AC", "Thread stopped");
             }
 
         }, "AppConnection-Thread");
@@ -140,6 +163,8 @@ public class AppConnection {
         os.write (length);
         os.write (data);
         os.flush ();
+
+        // Log.i ("AC", "Message sent");
     }
 
     public boolean isAlive () {
@@ -164,7 +189,51 @@ public class AppConnection {
     }
 
     public void close () throws Exception {
-        THREAD.interrupt ();
+        sendMessage (new CommandMessage (CTS, "exit"));
+    }
+
+    public static void sendRequest (final List <Message> messages, final boolean keepAlive,
+                                    final LocalConsumer <Message> callback) {
+        Thread thread = new Thread (new Runnable () {
+
+            @Override
+            public void run () {
+                AppConnection connection = new AppConnection (keepAlive);
+                ConcurrentMap <Integer, Message> map = new ConcurrentHashMap <> ();
+
+                for (Message message : messages) { map.put (message.getID (), message); }
+                for (Message message : messages) { connection.sendMessage (message); }
+
+                while (connection.isAlive ()) {
+                    Message answer = connection.pollMessage ();
+                    if (answer == null) {
+                        try {
+                            Thread.sleep (250); continue;
+                        } catch (InterruptedException ie) { return; }
+                    }
+
+                    if (answer instanceof  AppMessage) {
+                        AppMessage appMessage = (AppMessage) answer;
+                        Message reply = appMessage.getReplyMessage ();
+
+                        // Answer to unknown for this connection (session) message
+                        if (reply != null && !map.containsKey (reply.getID ())) {
+                            continue;
+                        } else if (reply != null) {
+                            map.remove (reply.getID ());
+                        }
+                    }
+
+                    callback.consume (answer);
+                    if (map.isEmpty ()) {
+                        try {
+                            connection.close ();
+                        } catch (Exception e) {}
+                    }
+                }
+            }
+        }, "Send-Request-Thread");
+        thread.start ();
     }
 
 }

@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.channels.FileLock;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,10 +29,15 @@ public class DataProvider {
         File groupsFile = new File (ROOT_DIR, "groups.bin");
         List <GroupEntity> out = new ArrayList <> ();
 
-        if (!groupsFile.exists ()
-                || !groupsFile.canRead ()) {
+        if (!groupsFile.exists () || !groupsFile.canRead ()) {
             PullReceiver.pullGroups (ROOT_DIR);
             return out;
+        } else {
+            //                                                 1 hour
+            long modified = groupsFile.lastModified (), time = 1000 * 60 * 60;
+            if (System.currentTimeMillis () - modified > time) {
+                PullReceiver.pullGroups (ROOT_DIR);
+            }
         }
 
         FileInputStream fis = null;
@@ -41,7 +47,7 @@ public class DataProvider {
             int size = bis.readInt ();
             Object tmp = null;
 
-            Log.i ("DP", "Size: " + size + " (" + groupsFile.length () + ")");
+            Log.i ("DP", "Size: " + size + " (size: " + groupsFile.length () + ")");
             for (int i = 0; i < size; i++) {
                 tmp = bis.readObject ();
                 if (tmp instanceof  GroupEntity) {
@@ -50,6 +56,7 @@ public class DataProvider {
             }
         } catch (IOException | ClassNotFoundException ioe) {
             // Nothing to do (just handle and ignore)
+            ioe.printStackTrace ();
         } finally {
             try {
                 fis.close ();
