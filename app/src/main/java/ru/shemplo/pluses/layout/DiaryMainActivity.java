@@ -12,9 +12,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.network.AppConnection;
 import ru.shemplo.pluses.adapter.TaskAdapter;
 import ru.shemplo.pluses.network.DataProvider;
+import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.service.DataPullService;
 
 public class DiaryMainActivity extends AppCompatActivity {
@@ -29,6 +34,8 @@ public class DiaryMainActivity extends AppCompatActivity {
         final Intent intentDataPullStop = new Intent (this, DataPullService.class);
         final SharedPreferences preferences =
                 getSharedPreferences ("PullData", Context.MODE_PRIVATE);
+        this.context = this;
+        */
 
         setContentView(R.layout.testing_dummy);
         Button button = (Button) findViewById (R.id.button);
@@ -62,9 +69,29 @@ public class DiaryMainActivity extends AppCompatActivity {
                 Log.i ("DMA", "Current value: " + value);
             }
 
-        });*/
+        });
 
+        button = (Button) findViewById (R.id.button_send);
+        button.setOnClickListener (new View.OnClickListener () {
 
+            @Override
+            public void onClick (View v) {
+                DataProvider provider = new DataProvider (context);
+                StringBuilder sb = new StringBuilder ();
+
+                for (GroupEntity entity : provider.getGroups ()) {
+                    sb.append ("'");
+                    sb.append (entity.TITLE);
+                    sb.append ("' ");
+                }
+
+                Log.i ("DMA", sb.toString ().trim ());
+            }
+
+        });
+
+        /*
+        setContentView(R.layout.frame_layout);
 
         GroupsFragment groupsFragment = new GroupsFragment();
         groupsFragment.setContext(this);
