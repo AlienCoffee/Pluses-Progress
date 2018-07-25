@@ -22,10 +22,33 @@ public class DataProvider {
 
     private final File ROOT_DIR;
 
+
     public DataProvider (Context context) {
         this.ROOT_DIR = context.getFilesDir ();
     }
+  
+    //TODO: constructor of StudentEntity?
+    public static List<TopicEntity> getTopics() {
+        List<TopicEntity> topics = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 15; i++) {
+            List<TaskEntity> tasks = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                tasks.add(new TaskEntity(j + "", random.nextBoolean()));
+            }
+            topics.add(new TopicEntity("Topic" + i, tasks));
+        }
+        return topics;
+    }
 
+    public static List<StudentEntity> getStudents() {
+        List<StudentEntity> students = new ArrayList<>();
+        Random random = new Random();
+        for(int i = 0; i < 16; i++) {
+            students.add(new StudentEntity("Ilya Ivanov " + random.nextInt(228)));
+        }
+        return students;
+    }
 
     // Next methods is for the support
     public List <GroupEntity> getGroups () {
@@ -94,28 +117,6 @@ public class DataProvider {
         }
 
         return out;
-    }
-
-    public List <TopicEntity> getTopics () {
-        List <TopicEntity> topics = new ArrayList <> ();
-        List <TaskEntity> tasks = new ArrayList <> ();
-        tasks.add (new TaskEntity ("1"));
-        tasks.add (new TaskEntity ("2"));
-        tasks.add (new TaskEntity ("3"));
-        tasks.add (new TaskEntity ("4"));
-        tasks.add (new TaskEntity ("5"));
-        tasks.add (new TaskEntity ("6"));
-        tasks.add (new TaskEntity ("7"));
-        tasks.add (new TaskEntity ("8"));
-        tasks.add (new TaskEntity ("9"));
-        topics.add (new TopicEntity ("1", tasks));
-
-        tasks = tasks.subList (0, tasks.size () - 1);
-        topics.add (new TopicEntity ("2", tasks));
-
-        tasks = tasks.subList (0, tasks.size () - 1);
-        topics.add (new TopicEntity ("3", tasks));
-        return topics;
     }
 
 }

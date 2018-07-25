@@ -1,10 +1,9 @@
 package ru.shemplo.pluses.entity;
 
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class GroupEntity implements Serializable {
+public class GroupEntity implements Serializable, MyEntity {
 
     private static final long serialVersionUID = 0L;
 
@@ -26,19 +25,19 @@ public class GroupEntity implements Serializable {
         name = this.TITLE;
     }
 
-    //TODO: remove this
+    //TODO: constructors
     static private int tmp = 1;
     public GroupEntity(int id, int population) {
         teacher = "Alexey Rusakov";
         this.size = population;
         this.name = "G" + id;
-
+      
         this.TITLE = this.name; this.COMMENT = "";
         this.headteacherID = -1;
         this.CREATED = "now";
         this.ID = id;
     }
-
+  
     public String getName() {
         return name;
     }
