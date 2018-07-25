@@ -76,8 +76,9 @@ public class DiaryMainActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder ();
 
                 for (GroupEntity entity : provider.getGroups ()) {
-                    sb.append (entity.getName ());
-                    sb.append (" ");
+                    sb.append ("'");
+                    sb.append (entity.TITLE);
+                    sb.append ("' ");
                 }
 
                 Log.i ("DMA", sb.toString ().trim ());

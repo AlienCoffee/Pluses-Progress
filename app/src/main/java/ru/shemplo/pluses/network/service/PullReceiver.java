@@ -21,8 +21,10 @@ import ru.shemplo.pluses.network.AppConnection;
 import ru.shemplo.pluses.network.DataProvider;
 import ru.shemplo.pluses.network.message.AppMessage;
 import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.message.ListMessage;
 import ru.shemplo.pluses.network.message.Message;
+import ru.shemplo.pluses.util.BytesManip;
 import ru.shemplo.pluses.util.LocalConsumer;
 
 import static ru.shemplo.pluses.network.message.AppMessage.MessageDirection.CTS;
@@ -43,36 +45,30 @@ public class PullReceiver extends BroadcastReceiver {
     }
 
     public static void pullGroups (final File root) {
-        List <Message> commands = new ArrayList <> ();
+        final List <Message> commands = new ArrayList <> ();
         commands.add (new CommandMessage (CTS,"select groups"));
         LocalConsumer <Message> consumer = new LocalConsumer <Message> () {
 
             @Override
             public void consume (Message value) {
                 if (value instanceof ListMessage) {
-                    ListMessage <Integer> list = (ListMessage <Integer>) value;
-                    List <Integer> ids = list.getList ();
-                    Random random = new Random ();
+                    List <Integer> ids = ((ListMessage <Integer>) value).getList ();
+                    PullReceiver.pullGroupsInfo (root, ids);
                     FileOutputStream fos = null;
                     FileLock lock = null;
 
                     try {
                         File file = new File (root, "groups.bin");
-                        Log.i ("PR", "File: " + root + " " + root.isDirectory ());
+                        Log.i ("PR", "Writing to file " + file);
                         if (!file.isFile ()) {
                             file.createNewFile ();
                         }
 
                         fos = new FileOutputStream (file);
                         lock = fos.getChannel ().lock ();
-                        ObjectOutputStream bos = new ObjectOutputStream (fos);
-                        bos.writeInt (ids.size ());
 
-                        for (int id : ids) {
-                            int population = 1 + random.nextInt (50);
-                            GroupEntity entity = new GroupEntity (id, population);
-                            bos.writeObject (entity);
-                        }
+                        fos.write (BytesManip.I2B (ids.size ())); // size of list of groups
+                        for (int id : ids) { fos.write (BytesManip.I2B (id)); }
                     } catch (IOException ioe) {
                         ioe.printStackTrace ();
                     } finally {
@@ -83,6 +79,8 @@ public class PullReceiver extends BroadcastReceiver {
                             } catch (Exception e) {}
                         }
                     }
+                } else {
+                    Log.i ("PR", "" + value);
                 }
             }
 
@@ -91,8 +89,74 @@ public class PullReceiver extends BroadcastReceiver {
         AppConnection.sendRequest (commands, false, consumer);
     }
 
-    public static void pullGroupsInfo (List <Integer> ids) {
+    public static void pullGroupsInfo (final File root, final List <Integer> ids) {
+        final List <Message> commands = new ArrayList <> ();
+        for (Integer id : ids) {
+            String command = "select info -about group -id " + id;
+            commands.add (new CommandMessage (null, CTS, command, id));
+            Log.i ("PR", command + " " + id);
+        }
 
+        LocalConsumer <Message> consumer = new LocalConsumer <Message> () {
+
+            @Override
+            public void consume (Message value) {
+                if (value instanceof ListMessage) {
+                    ListMessage <String> message = (ListMessage <String>) value;
+
+                    CommandMessage command = (CommandMessage) message.getReplyMessage ();
+                    List <String> info = message.getList ();
+                    int id = command.getValue ();
+
+                    File groupFile = new File (root, "group_" + id + ".bin");
+                    FileOutputStream fos = null;
+                    FileLock lock = null;
+
+                    Log.i ("PR", info + " " + groupFile);
+                    try {
+                        if (!groupFile.exists ()) {
+                            Log.i ("PR", "Create file " + groupFile);
+                            groupFile.createNewFile ();
+                        }
+
+                        fos = new FileOutputStream (groupFile, false);
+                        lock = fos.getChannel ().lock ();
+
+                        String title = info.get (1);
+                        String comment = info.get (2);
+                        String created = info.get (3);
+
+                        int headteacher = -1;
+                        try {
+                            headteacher = Integer.parseInt (info.get (4));
+                        } catch (NumberFormatException nfe) {}
+                        boolean active = "1".equals (info.get (5).trim ());
+
+                        ObjectOutputStream oos = new ObjectOutputStream (fos);
+                        oos.writeObject (new GroupEntity (
+                                id, title, comment, created, headteacher, active));
+
+                        fos.flush ();
+                    } catch (IOException ioe) {
+                        // Just handle -> nothing to do
+                        ioe.printStackTrace ();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                lock.release ();
+                                fos.close ();
+                            } catch (Exception e) {}
+                        }
+                    }
+                } else {
+                    ControlMessage control = (ControlMessage) value;
+                    Log.i ("PR", control.getComment ());
+                }
+            }
+
+        };
+
+        AppConnection.sendRequest (commands, false, consumer);
     }
 
 }

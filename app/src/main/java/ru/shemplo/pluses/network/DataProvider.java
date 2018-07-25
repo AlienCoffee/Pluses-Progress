@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.entity.TaskEntity;
+import ru.shemplo.pluses.entity.TopicEntity;
 import ru.shemplo.pluses.network.service.PullReceiver;
+import ru.shemplo.pluses.util.BytesManip;
 
 public class DataProvider {
 
@@ -33,8 +36,8 @@ public class DataProvider {
             PullReceiver.pullGroups (ROOT_DIR);
             return out;
         } else {
-            //                                                 1 hour
-            long modified = groupsFile.lastModified (), time = 1000 * 60 * 60;
+            //                                                 5 minutes
+            long modified = groupsFile.lastModified (), time = 1000 * 60 * 5;
             if (System.currentTimeMillis () - modified > time) {
                 PullReceiver.pullGroups (ROOT_DIR);
             }
@@ -43,18 +46,45 @@ public class DataProvider {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream (groupsFile);
-            ObjectInputStream bis = new ObjectInputStream (fis);
-            int size = bis.readInt ();
-            Object tmp = null;
+            byte [] buffer = new byte [4];
+            fis.read (buffer, 0, buffer.length);
+            int size = BytesManip.B2I (buffer);
 
             Log.i ("DP", "Size: " + size + " (size: " + groupsFile.length () + ")");
+            List <Integer> ids = new ArrayList <> ();
+            boolean needPullData = false;
             for (int i = 0; i < size; i++) {
-                tmp = bis.readObject ();
-                if (tmp instanceof  GroupEntity) {
-                    out.add ((GroupEntity) tmp);
+                fis.read (buffer, 0, buffer.length);
+                int id = BytesManip.B2I (buffer);
+                ids.add (id);
+
+                File groupFile = new File (ROOT_DIR, "group_" + id + ".bin");
+                if (!groupFile.exists () || !groupFile.canRead ()) {
+                    Log.i ("DP", "File " + groupFile + " not found");
+                    needPullData = true;
+                    continue;
                 }
+
+                FileInputStream dfis = new FileInputStream (groupFile);
+                try {
+                    ObjectInputStream ois = new ObjectInputStream (dfis);
+                    Object object = ois.readObject ();
+                    if (object instanceof GroupEntity) {
+                        GroupEntity entity = (GroupEntity) object;
+                        out.add (entity);
+                    }
+                } catch (ClassNotFoundException cnfe) {
+                    cnfe.printStackTrace ();
+                    needPullData = true;
+                }
+
+                dfis.close ();
             }
-        } catch (IOException | ClassNotFoundException ioe) {
+
+            if (needPullData) {
+                PullReceiver.pullGroupsInfo (ROOT_DIR, ids);
+            }
+        } catch (IOException ioe) {
             // Nothing to do (just handle and ignore)
             ioe.printStackTrace ();
         } finally {
@@ -64,6 +94,28 @@ public class DataProvider {
         }
 
         return out;
+    }
+
+    public List <TopicEntity> getTopics () {
+        List <TopicEntity> topics = new ArrayList <> ();
+        List <TaskEntity> tasks = new ArrayList <> ();
+        tasks.add (new TaskEntity ("1"));
+        tasks.add (new TaskEntity ("2"));
+        tasks.add (new TaskEntity ("3"));
+        tasks.add (new TaskEntity ("4"));
+        tasks.add (new TaskEntity ("5"));
+        tasks.add (new TaskEntity ("6"));
+        tasks.add (new TaskEntity ("7"));
+        tasks.add (new TaskEntity ("8"));
+        tasks.add (new TaskEntity ("9"));
+        topics.add (new TopicEntity ("1", tasks));
+
+        tasks = tasks.subList (0, tasks.size () - 1);
+        topics.add (new TopicEntity ("2", tasks));
+
+        tasks = tasks.subList (0, tasks.size () - 1);
+        topics.add (new TopicEntity ("3", tasks));
+        return topics;
     }
 
 }
