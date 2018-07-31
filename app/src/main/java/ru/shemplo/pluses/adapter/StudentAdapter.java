@@ -10,7 +10,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import ru.shemplo.pluses.R;
-import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.entity.StudentEntity;
 
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHolder> {
@@ -42,7 +41,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.e("dbg: adapter", "onBind " + position);
         StudentEntity student = students.get(position);
-        holder.studentName.setText(student.getName());
+        holder.studentName.setText(student.getFirstName ());
     }
 
     @Override

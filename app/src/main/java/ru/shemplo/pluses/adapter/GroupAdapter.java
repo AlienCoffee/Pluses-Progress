@@ -11,19 +11,33 @@ import java.util.List;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
+
     private List<GroupEntity> groups;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView groupName, teacherName, studentsCount; //TODO: anything more?
 
+        private TextView groupName, teacherName, studentsCount; //TODO: anything more?
+        private int id;
 
         public ViewHolder(View v) {
             super(v);
+
             groupName = (TextView) itemView.findViewById(R.id.group_item_name);
             teacherName = (TextView) itemView.findViewById(R.id.group_item_teacher);
             studentsCount = (TextView) itemView.findViewById(R.id.group_item_students_count);
+
+            v.setOnClickListener (new View.OnClickListener () {
+
+                @Override
+                public void onClick (View v) {
+                    DataProvider provider = new DataProvider (v.getContext ());
+                    Log.i ("GA", "Students " + provider.getStudents (id));
+                }
+
+            });
         }
     }
 
@@ -43,13 +57,18 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.e("dbg: adapter", "onBind " + position);
         GroupEntity group = groups.get(position);
+
+        holder.id = group.ID;
         holder.groupName.setText(group.getName());
         holder.teacherName.setText(group.getTeacher());
-        holder.studentsCount.setText(group.getSize() + "");
+
+        DataProvider provider = new DataProvider (holder.groupName.getContext ());
+        holder.studentsCount.setText ("" + provider.getStudents (group.ID).size ());
     }
 
     @Override
     public int getItemCount() {
         return groups.size();
     }
+
 }
