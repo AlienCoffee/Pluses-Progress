@@ -17,6 +17,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView studentName;
+    //    private int id;
 
 
         public ViewHolder(View v) {
@@ -42,6 +43,8 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         Log.e("dbg: adapter", "onBind " + position);
         StudentEntity student = students.get(position);
         holder.studentName.setText(student.getFirstName ());
+
+        //holder.id = student.;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ru.shemplo.pluses.layout;
 
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +22,7 @@ public class DiaryMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.context = this;
 
-        startService (new Intent (context, DataPullService.class));
+        startService(new Intent(context, DataPullService.class));
         setContentView(R.layout.testing_dummy);
 
         /*
@@ -49,7 +50,7 @@ public class DiaryMainActivity extends AppCompatActivity {
         });
         */
 
-        DataProvider provider = new DataProvider (this);
+        DataProvider provider = new DataProvider(this);
         setContentView(R.layout.frame_layout);
 
         GroupsFragment groupsFragment = new GroupsFragment();
@@ -61,7 +62,39 @@ public class DiaryMainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void something(View view) {
-        Log.e("ss", "qq");
+    public void switchFragment(int fragment, int id) {
+        DataProvider provider = new DataProvider(this);
+        Fragment newFragment;
+        switch (fragment) {
+            case R.id.group_recycler_view: {
+                GroupsFragment groupsFragment = new GroupsFragment();
+                groupsFragment.setContext(this);
+                groupsFragment.setData(provider.getGroups());
+                newFragment = groupsFragment;
+            }
+            break;
+            case R.id.student_recycler_view: {
+                StudentsFragment studentsFragment = new StudentsFragment();
+                studentsFragment.setContext(this);
+                studentsFragment.setData(provider.getStudents(id));
+                newFragment = studentsFragment;
+            }
+            break;
+            case R.id.topic_recycler_view: {
+                TopicsFragment topicsFragment = new TopicsFragment();
+                topicsFragment.setContext(this);
+                topicsFragment.setData(provider.getTopics(id));
+                newFragment = topicsFragment;
+            }
+            break;
+            default:
+                Log.e("ERROR", "undefined fragment in switchFragment");
+                newFragment = null;
+        }
+        getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.main_frame, newFragment)
+                .commit();
     }
+
 }

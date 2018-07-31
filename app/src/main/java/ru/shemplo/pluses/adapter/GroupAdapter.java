@@ -11,6 +11,7 @@ import java.util.List;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.layout.DiaryMainActivity;
 import ru.shemplo.pluses.network.DataProvider;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
@@ -34,6 +35,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 @Override
                 public void onClick (View v) {
                     DataProvider provider = new DataProvider (v.getContext ());
+                    ((DiaryMainActivity) v.getContext()).switchFragment(R.id.student_recycler_view, id);
                     Log.i ("GA", "Students " + provider.getStudents (id));
                 }
 
