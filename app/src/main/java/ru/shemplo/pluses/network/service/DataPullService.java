@@ -1,58 +1,127 @@
 package ru.shemplo.pluses.network.service;
 
-import android.app.ActivityManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.FileLock;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import ru.shemplo.pluses.network.AppConnection;
+import ru.shemplo.pluses.network.message.AppMessage;
+import ru.shemplo.pluses.network.message.CommandMessage;
+import ru.shemplo.pluses.network.message.Message;
+import ru.shemplo.pluses.struct.Trio;
+import ru.shemplo.pluses.util.AnswerConsumer;
 
 public class DataPullService extends Service {
+
+    private static final ConcurrentLinkedQueue <Trio <String, File, AnswerConsumer>>
+            TASKS = new ConcurrentLinkedQueue <> ();
+
+    public static void addTask (String command, File write, AnswerConsumer onAnswered) {
+        TASKS.add (Trio.mt (command, write, onAnswered));
+    }
 
     @Nullable
     @Override
     public IBinder onBind (Intent intent) {
+        Log.i ("DPS", "" + intent);
         return null;
     }
 
-    private Thread thread;
+    private static volatile boolean isAlive = false;
+    private static volatile Thread thread = null;
+
+    private static Map <Integer, Trio <String, File, AnswerConsumer>>
+            needCompute = new HashMap <> ();
+    private static AppConnection connection;
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        thread = new Thread (new Runnable () {
+        Log.i ("DPS", "Thread pool: " + isAlive + " (" + flags + ", " + startId + ")");
+        if (!isAlive || thread == null) {
+            isAlive = true;
 
-            @Override
-            public void run () {
-            while (true) {
-                try {
-                    // Do one time each 1.5 minutes
-                    Thread.sleep (10 * 1000);
-                    Log.i ("DPS-Thread", "I'm alive");
+            thread = new Thread (new Runnable () {
 
-                    Intent call = new Intent ();
-                    call.setAction ("PR_ACTION");
-                    call.addCategory (Intent.CATEGORY_DEFAULT);
-                    sendBroadcast (call);
-                } catch (InterruptedException ie) {
-                    Log.i ("DPS-Thread", "I was interrupted");
-                    return;
+                @Override
+                public void run () {
+                    while (true) {
+                        try {
+                            Message answer = null;
+                            while (connection != null
+                                    && (answer = connection.pollMessage ()) != null) {
+                                if (answer instanceof AppMessage) {
+                                    AppMessage appAnswer = (AppMessage) answer;
+                                    if (appAnswer.getReplyMessage () != null) {
+                                        int id = appAnswer.getReplyMessage ().getID ();
+                                        if (!needCompute.containsKey (id)) {
+                                            continue;
+                                        }
+
+                                        Trio <String, File, AnswerConsumer>
+                                                trio = needCompute.remove (id);
+
+                                        File file = trio.S;
+                                        if (!file.exists ()) {
+                                            try {
+                                                file.createNewFile ();
+                                            } catch (IOException ioe) {}
+                                        }
+
+                                        OutputStream os = null;
+                                        FileLock lock = null;
+                                        try {
+                                            os = new FileOutputStream (file, false);
+                                            lock = ((FileOutputStream) os).getChannel ().lock ();
+                                            trio.T.consume (os, appAnswer);
+                                        } catch (IOException ioe) {} finally {
+                                            try {
+                                                lock.release ();
+                                                os.close ();
+                                            } catch (IOException ioe) {}
+                                        }
+                                    }
+                                }
+                            }
+
+                            Trio <String, File, AnswerConsumer> task = TASKS.poll ();
+                            if (task == null) {
+                                Thread.sleep (500);
+                                continue;
+                            }
+
+                            Message message = new CommandMessage
+                                    (AppMessage.MessageDirection.CTS, task.F);
+                            needCompute.put (message.getID (), task);
+
+                            if (connection == null || !connection.isAlive ()) {
+                                connection = new AppConnection (false);
+                            }
+
+                            connection.sendMessage (message);
+                        } catch (InterruptedException ie) {
+                            Log.i ("DPS-T", "I was interrupted");
+                            isAlive = false;
+                            return;
+                        }
+                    }
                 }
-            }
-            }
 
-        }, "DataPullService-Thread");
-        thread.start ();
-        stopSelf ();
+            }, "DataPullService-Thread");
+            thread.start ();
+        }
 
         return Service.START_STICKY;
     }
 
-    @Override
-    public void onDestroy () {
-        thread.interrupt ();
-        super.onDestroy ();
-    }
 }
