@@ -1,9 +1,6 @@
 package ru.shemplo.pluses.entity;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
-
-public class GroupEntity implements Serializable, MyEntity {
+public class GroupEntity implements MyEntity {
 
     private static final long serialVersionUID = 0L;
 

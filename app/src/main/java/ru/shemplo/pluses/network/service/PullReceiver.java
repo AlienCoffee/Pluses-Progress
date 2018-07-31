@@ -3,7 +3,6 @@ package ru.shemplo.pluses.network.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.File;
@@ -14,16 +13,15 @@ import java.nio.channels.FileLock;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.entity.StudentEntity;
 import ru.shemplo.pluses.network.AppConnection;
-import ru.shemplo.pluses.network.DataProvider;
-import ru.shemplo.pluses.network.message.AppMessage;
 import ru.shemplo.pluses.network.message.CommandMessage;
 import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.message.ListMessage;
 import ru.shemplo.pluses.network.message.Message;
+import ru.shemplo.pluses.struct.Pair;
 import ru.shemplo.pluses.util.BytesManip;
 import ru.shemplo.pluses.util.LocalConsumer;
 
@@ -35,13 +33,6 @@ public class PullReceiver extends BroadcastReceiver {
     public void onReceive (Context context, Intent intent) {
         Log.i ("PR", "Broadcast event for PR");
         Log.i ("PR", new Timestamp (System.currentTimeMillis ()).toString ());
-
-        SharedPreferences preferences =
-                context.getSharedPreferences ("PullData", Context.MODE_PRIVATE);
-        int value = Integer.parseInt (preferences.getString ("i", "0"));
-        Log.i ("PR", "Current value: " + value);
-
-        preferences.edit ().putString ("i", "" + (value + 1)).apply ();
     }
 
     public static void pullGroups (final File root) {
@@ -59,7 +50,7 @@ public class PullReceiver extends BroadcastReceiver {
 
                     try {
                         File file = new File (root, "groups.bin");
-                        Log.i ("PR", "Writing to file " + file);
+                        //Log.i ("PR", "Writing to file " + file);
                         if (!file.isFile ()) {
                             file.createNewFile ();
                         }
@@ -86,7 +77,7 @@ public class PullReceiver extends BroadcastReceiver {
 
         };
 
-        AppConnection.sendRequest (commands, false, consumer);
+        AppConnection.sendRequest (commands, false, consumer, true);
     }
 
     public static void pullGroupsInfo (final File root, final List <Integer> ids) {
@@ -115,7 +106,7 @@ public class PullReceiver extends BroadcastReceiver {
                     Log.i ("PR", info + " " + groupFile);
                     try {
                         if (!groupFile.exists ()) {
-                            Log.i ("PR", "Create file " + groupFile);
+                            //Log.i ("PR", "Create file " + groupFile);
                             groupFile.createNewFile ();
                         }
 
@@ -156,7 +147,129 @@ public class PullReceiver extends BroadcastReceiver {
 
         };
 
-        AppConnection.sendRequest (commands, false, consumer);
+        AppConnection.sendRequest (commands, false, consumer, true);
+    }
+
+    public static void pullStudents (final File root, int groupID) {
+        final List <Message> commands = new ArrayList <> ();
+        commands.add (new CommandMessage (null, CTS,
+                "select students -id " + groupID, groupID));
+        LocalConsumer <Message> consumer = new LocalConsumer <Message> () {
+
+            @Override
+            public void consume (Message value) {
+                if (value instanceof ListMessage) {
+                    ListMessage <Pair <Integer, Integer>> message =
+                            (ListMessage <Pair <Integer, Integer>>) value;
+
+                    CommandMessage command = (CommandMessage) message.getReplyMessage ();
+                    List <Pair <Integer, Integer>> ids = message.getList ();
+                    int groupID = command.getValue ();
+                    FileOutputStream fos = null;
+                    FileLock lock = null;
+
+                    try {
+                        File file = new File (root, "group_" + groupID + "_students.bin");
+                        //Log.i ("PR", "Writing to file " + file);
+                        if (!file.isFile ()) {
+                            file.createNewFile ();
+                        }
+
+                        fos = new FileOutputStream (file, false);
+                        lock = fos.getChannel ().lock ();
+
+                        List <Integer> current = new ArrayList <> ();
+                        for (Pair <Integer, Integer> id : ids) {
+                            if (id.S == 0) { current.add (id.F); }
+                        }
+
+                        fos.write (BytesManip.I2B (current.size ()));
+                        for (Integer id : current) {
+                            fos.write (BytesManip.I2B (id));
+                        }
+
+                        fos.flush ();
+
+                        PullReceiver.pullStudentsInfo (root, current);
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace ();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                lock.release ();
+                                fos.close ();
+                            } catch (Exception e) {}
+                        }
+                    }
+                } else {
+                    Log.i ("PR", "" + value);
+                }
+            }
+
+        };
+
+        AppConnection.sendRequest (commands, false, consumer, true);
+    }
+
+    public static void pullStudentsInfo (final File root, final List <Integer> ids) {
+        final List <Message> commands = new ArrayList <> ();
+        for (Integer id : ids) {
+            String command = "select info -about student -id " + id;
+            commands.add (new CommandMessage (null, CTS, command, id));
+            Log.i ("PR", command + " " + id);
+        }
+
+        LocalConsumer <Message> consumer = new LocalConsumer <Message> () {
+
+            @Override
+            public void consume (Message value) {
+                if (value instanceof ListMessage) {
+                    ListMessage <String> message = (ListMessage <String>) value;
+
+                    CommandMessage command = (CommandMessage) message.getReplyMessage ();
+                    List <String> info = message.getList ();
+                    int id = command.getValue ();
+
+                    File groupFile = new File (root, "student_" + id + ".bin");
+                    FileOutputStream fos = null;
+                    FileLock lock = null;
+
+                    Log.i ("PR", info + " " + groupFile);
+                    try {
+                        if (!groupFile.exists ()) {
+                            //Log.i ("PR", "Create file " + groupFile);
+                            groupFile.createNewFile ();
+                        }
+
+                        fos = new FileOutputStream (groupFile, false);
+                        lock = fos.getChannel ().lock ();
+
+
+
+                        ObjectOutputStream oos = new ObjectOutputStream (fos);
+                        oos.writeObject (new StudentEntity ("" + id));
+
+                        fos.flush ();
+                    } catch (IOException ioe) {
+                        // Just handle -> nothing to do
+                        ioe.printStackTrace ();
+                    } finally {
+                        if (fos != null) {
+                            try {
+                                lock.release ();
+                                fos.close ();
+                            } catch (Exception e) {}
+                        }
+                    }
+                } else {
+                    ControlMessage control = (ControlMessage) value;
+                    Log.i ("PR", control.getComment ());
+                }
+            }
+
+        };
+
+        AppConnection.sendRequest (commands, false, consumer, true);
     }
 
 }

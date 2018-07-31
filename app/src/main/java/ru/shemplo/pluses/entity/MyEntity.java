@@ -1,5 +1,7 @@
 package ru.shemplo.pluses.entity;
 
-public interface MyEntity {
+import java.io.Serializable;
+
+public interface MyEntity extends Serializable {
 
 }
