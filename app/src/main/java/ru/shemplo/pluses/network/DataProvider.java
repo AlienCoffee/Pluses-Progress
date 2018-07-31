@@ -29,11 +29,9 @@ import ru.shemplo.pluses.util.BytesManip;
 public class DataProvider {
 
     private final File ROOT_DIR;
-    private final Context CONTEXT;
 
     public DataProvider (Context context) {
         this.ROOT_DIR = context.getFilesDir ();
-        this.CONTEXT = context;
     }
 
     private List <Integer> readFromFile (File file, final int one) {
@@ -213,7 +211,6 @@ public class DataProvider {
                         public void consume (OutputStream os, AppMessage answer) throws IOException {
                             if (answer instanceof ListMessage) {
                                 List <String> info = ((ListMessage <String>) answer).getList ();
-                                Log.i ("DP", "Student " + info);
 
                                 String firstName = info.get (1);
 
