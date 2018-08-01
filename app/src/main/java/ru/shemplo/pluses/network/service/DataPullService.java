@@ -34,7 +34,6 @@ public class DataPullService extends Service {
     @Nullable
     @Override
     public IBinder onBind (Intent intent) {
-        Log.i ("DPS", "" + intent);
         return null;
     }
 
@@ -112,7 +111,7 @@ public class DataPullService extends Service {
                                 connection.sendMessage (message);
                             } else {
                                 TASKS.add (task); // Rollback task
-                                Thread.sleep (250);
+                                Thread.sleep (500);
                             }
                         } catch (InterruptedException ie) {
                             Log.i ("DPS-T", "I was interrupted");
