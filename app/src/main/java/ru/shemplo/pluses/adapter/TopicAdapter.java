@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         public TopicViewHolder(View view) {
             super(view);
+
             topicName = (TextView) itemView.findViewById(R.id.topic_name);
         }
 
@@ -45,8 +47,18 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         public TaskViewHolder(View view) {
             super(view);
+
             taskName = (TextView) itemView.findViewById(R.id.task_name);
             solved = (CheckBox) itemView.findViewById(R.id.box_solved);
+
+            solved.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
+
+                @Override
+                public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
+                    Log.i ("TA", "Is checked: " + isChecked);
+                }
+
+            });
         }
 
         public void setName(String name) {
@@ -111,7 +123,7 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         } else if (getItemViewType(position) == R.id.task_item) {
             TaskEntity task = (TaskEntity) data.get(position);
             TaskViewHolder viewHolder = (TaskViewHolder) holder;
-            viewHolder.setName(task.getName());
+            viewHolder.setName(task.TITLE);
         } else {
             Log.e("dbg: ERROR", "undefined");
         }

@@ -314,7 +314,7 @@ public class DataProvider {
                 try {
                     Object tmp = ois.readObject ();
                     Pair <Integer, String> task = (Pair <Integer, String>) tmp;
-                    out.add (new TaskEntity (task.S));
+                    out.add (new TaskEntity (task.F, task.S, topicID));
                 } catch (ClassNotFoundException cnfe) {
                     cnfe.getMessage ();
                 }
