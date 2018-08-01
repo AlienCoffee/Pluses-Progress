@@ -5,7 +5,9 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.network.DataProvider;
@@ -17,6 +19,8 @@ public class DiaryMainActivity extends AppCompatActivity {
 
     public static int group = -1, student = -1;
 
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +29,18 @@ public class DiaryMainActivity extends AppCompatActivity {
         startService(new Intent(this, DataPullService.class));
 
         setContentView(R.layout.frame_layout);
-        switchFragment (R.id.group_recycler_view, 0);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        findViewById(R.id.toolbar_update_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("tmp", "click");
+            }
+        });
+
+        switchFragment(R.id.group_recycler_view, 0);
     }
 
     public void switchFragment(int fragment, int id) {
