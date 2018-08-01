@@ -58,7 +58,7 @@ public class TopicsFragment extends Fragment {
         topicsRecycler = (RecyclerView) view.findViewById(R.id.topic_recycler_view);
         layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         topicsRecycler.setLayoutManager(layoutManager);
-        adapter = new TopicAdapter(topics);
+        adapter = new TopicAdapter(topics, context);
         topicsRecycler.setAdapter(adapter);
     }
 }

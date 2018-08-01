@@ -327,7 +327,7 @@ public class DataProvider {
             }
         }
 
-        return null;
+        return out;
     }
 
 }

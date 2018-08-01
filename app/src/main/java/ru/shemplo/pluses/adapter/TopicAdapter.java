@@ -1,5 +1,6 @@
 package ru.shemplo.pluses.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -16,6 +17,7 @@ import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.MyEntity;
 import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -68,10 +70,12 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return -1;
     }
 
-    public TopicAdapter(List<TopicEntity> topics) {
+    public TopicAdapter(List<TopicEntity> topics, Context context) {
         data = new ArrayList<>();
+        DataProvider provider = new DataProvider(context);
         for (TopicEntity topic : topics) {
             data.add(topic);
+            data.addAll(provider.getTasks(topic.getID()));
             // TODO: add tasks here
         }
     }

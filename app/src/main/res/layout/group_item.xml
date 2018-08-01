@@ -11,12 +11,11 @@
         android:id="@+id/group_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="---" />
@@ -36,23 +35,15 @@
         TODO: Here would be better to set icon within string
         String is tooooo long and hard to read each time
      -->
-    <TextView
-        android:id="@+id/group_item_tv2"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="% "
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/group_item_name" />
 
     <TextView
         android:id="@+id/group_item_teacher"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        app:layout_constraintStart_toEndOf="@+id/group_item_tv2"
-        app:layout_constraintTop_toTopOf="@+id/group_item_tv2"
+        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
+        app:layout_constraintStart_toEndOf="@+id/imageView3"
         tools:text="Алексей Русаков" />
 
     <ImageButton
@@ -73,5 +64,24 @@
         app:layout_constraintEnd_toStartOf="@+id/group_item_tv1"
         app:layout_constraintTop_toTopOf="@+id/group_item_tv1"
         tools:text="--" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/group_item_name"
+        app:srcCompat="@drawable/teacher32" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/group_item_tv1" />
 
 </android.support.constraint.ConstraintLayout>
