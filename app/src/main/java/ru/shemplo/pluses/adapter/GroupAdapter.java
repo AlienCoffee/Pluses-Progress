@@ -33,8 +33,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
                 @Override
                 public void onClick (View v) {
-                    DiaryMainActivity.group = id;
-                    DiaryMainActivity.page.switchFragment(R.id.student_recycler_view, id);
+                    DiaryMainActivity.page.switchFragment(R.id.student_recycler_view, id, groupName.getText());
                 }
 
             });
