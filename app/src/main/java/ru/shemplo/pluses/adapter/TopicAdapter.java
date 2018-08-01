@@ -1,9 +1,5 @@
 package ru.shemplo.pluses.adapter;
 
-import android.content.Context;
-import android.content.Entity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -17,17 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.shemplo.pluses.R;
-import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.entity.MyEntity;
 import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
 
 public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     private List<MyEntity> data;
 
     public static class TopicViewHolder extends RecyclerView.ViewHolder {
-        private TextView topicName;
 
+        private TextView topicName;
 
         public TopicViewHolder(View view) {
             super(view);
@@ -37,12 +33,13 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public void setName(String name) {
             topicName.setText(name);
         }
+
     }
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
+
         private TextView taskName;
         private CheckBox solved;
-
 
         public TaskViewHolder(View view) {
             super(view);
@@ -57,6 +54,7 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public void setSolved(boolean solved) {
             this.solved.setChecked(solved);
         }
+
     }
 
     @Override
@@ -74,14 +72,13 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         data = new ArrayList<>();
         for (TopicEntity topic : topics) {
             data.add(topic);
-            data.addAll(topic.getTasks());
+            // TODO: add tasks here
         }
     }
 
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.e("dbg: adapter", "onCreate");
+        //Log.e("dbg: adapter", "onCreate");
         if (viewType == R.id.topic_item) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.topic_item, parent, false);
@@ -98,23 +95,22 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Log.e("dbg: adapter", "onBind " + position);
+        //Log.e("dbg: adapter", "onBind " + position);
 
         if (getItemViewType(position) == R.id.topic_item) {
             TopicEntity topic = (TopicEntity) data.get(position);
             TopicViewHolder viewHolder = (TopicViewHolder) holder;
-            viewHolder.setName(topic.getName());
-            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) viewHolder.itemView.getLayoutParams();
+            viewHolder.setName(topic.getTitle ());
+            StaggeredGridLayoutManager.LayoutParams layoutParams
+                = (StaggeredGridLayoutManager.LayoutParams) viewHolder.itemView.getLayoutParams();
             layoutParams.setFullSpan(true);
-            return;
-        }
-        if (getItemViewType(position) == R.id.task_item) {
+        } else if (getItemViewType(position) == R.id.task_item) {
             TaskEntity task = (TaskEntity) data.get(position);
             TaskViewHolder viewHolder = (TaskViewHolder) holder;
             viewHolder.setName(task.getName());
-            return;
+        } else {
+            Log.e("dbg: ERROR", "undefined");
         }
-        Log.e("dbg: ERROR", "undefined");
     }
 
     @Override

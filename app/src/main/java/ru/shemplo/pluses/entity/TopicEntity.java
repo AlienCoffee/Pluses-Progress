@@ -1,34 +1,20 @@
 package ru.shemplo.pluses.entity;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class TopicEntity implements MyEntity {
-    private final String name;
-    private final List<TaskEntity> tasks;//TODO: remove
 
-    //TODO: add constructor
-    private int x = 1;
-    public TopicEntity() {
-        tasks = new ArrayList<>();
-        for (int i = 0; i < x; i++) {
-            tasks.add(new TaskEntity());
-        }
-        name = "Chapter" + (x++);
+    private final String TITLE;
+
+    public TopicEntity (int id, String title) {
+        this.TITLE = title;
     }
 
-    public TopicEntity(String name, List<TaskEntity> tasks) {
-        this.name = name;
-        this.tasks = tasks;
+    public String toString () {
+        return getTitle ();
     }
 
-    public String getName() {
-        return name;
+    public String getTitle () {
+        return TITLE;
     }
 
-    public List<TaskEntity> getTasks() {
-        return tasks;
-    }
 }
