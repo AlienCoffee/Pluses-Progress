@@ -186,15 +186,7 @@ public class DataProvider {
                 break;
             case 2:
             case 4:
-            case 6:
-                String command = "select "
-                        + (index == 2
-                            ? "students"
-                            : (index == 4
-                                ? "topics"
-                                : "tasks"))
-                        + " -id " + one;
-                Log.i ("DP", command);
+                String command = "select " + (index == 2 ? "students" : "topics") + " -id " + one;
                 DataPullService.addTask (command, file, new AnswerConsumer () {
                     @Override
                     public void consume (OutputStream os, AppMessage answer)
@@ -259,6 +251,31 @@ public class DataProvider {
                             }
                         });
                 break;
+            case 6:
+                DataPullService.addTask ("select tasks -topic " + one, file,
+                    new AnswerConsumer () {
+                        @Override
+                        public void consume (OutputStream os, AppMessage answer)
+                                throws IOException {
+                            if (answer instanceof ListMessage) {
+                                ListMessage <Pair <Integer, String>> list
+                                    = (ListMessage <Pair <Integer, String>>) answer;
+                                List <Pair <Integer, String>> tasks = list.getList ();
+                                ObjectOutputStream oos = new ObjectOutputStream (os);
+
+                                oos.writeInt (tasks.size ());
+                                for (Pair <Integer, String> task : tasks) {
+                                    oos.writeObject (task);
+                                }
+
+                                os.flush ();
+                            } else if (answer instanceof ControlMessage) {
+                                ControlMessage control = (ControlMessage) answer;
+                                Log.e ("DP", control.getComment ());
+                            }
+                        }
+                });
+                break;
         }
     }
 
@@ -282,14 +299,35 @@ public class DataProvider {
     }
 
     public List <TaskEntity> getTasks (int topicID) {
-        File topicsFile = new File (ROOT_DIR, "topic_" + topicID + "_tasks.bin");
-        List <Integer> ids = readFromFile (topicsFile, topicID);
+        File tasksFile = new File (ROOT_DIR, "topic_" + topicID + "_tasks.bin");
         List <TaskEntity> out = new ArrayList <> ();
-        for (Integer id : ids) {
-            out.add (new TaskEntity ("" + id));
+        InputStream is = null;
+
+        try {
+            prepareFile (tasksFile, topicID, 0);
+            is = new FileInputStream (tasksFile);
+
+            ObjectInputStream ois = new ObjectInputStream (is);
+            int size = ois.readInt ();
+
+            for (int i = 0; i < size; i++) {
+                try {
+                    Object tmp = ois.readObject ();
+                    Pair <Integer, String> task = (Pair <Integer, String>) tmp;
+                    out.add (new TaskEntity (task.S));
+                } catch (ClassNotFoundException cnfe) {
+                    cnfe.getMessage ();
+                }
+            }
+        } catch (IOException ioe) {
+            if (is != null) {
+                try {
+                    is.close ();
+                } catch (IOException ioe2) { ioe2.getMessage (); }
+            }
         }
 
-        return out;
+        return null;
     }
 
 }
