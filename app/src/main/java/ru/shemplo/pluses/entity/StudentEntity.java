@@ -3,10 +3,12 @@ package ru.shemplo.pluses.entity;
 
 public class StudentEntity implements MyEntity {
 
-    private final String name;
+    private final String FIRST_NAME;
+    public final int ID;
 
-    public StudentEntity (String name) {
-        this.name = name;
+    public StudentEntity (int id, String firstName) {
+        this.FIRST_NAME = firstName;
+        this.ID = id;
     }
 
     public String toString () {
@@ -14,7 +16,7 @@ public class StudentEntity implements MyEntity {
     }
 
     public String getFirstName () {
-        return name;
+        return FIRST_NAME;
     }
 
 }

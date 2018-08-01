@@ -1,7 +1,6 @@
 package ru.shemplo.pluses.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import java.util.List;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.layout.DiaryMainActivity;
 import ru.shemplo.pluses.network.DataProvider;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
@@ -33,8 +33,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
                 @Override
                 public void onClick (View v) {
-                    DataProvider provider = new DataProvider (v.getContext ());
-                    Log.i ("GA", "Students " + provider.getStudents (id));
+                    DiaryMainActivity.group = id;
+                    DiaryMainActivity.page.switchFragment(R.id.student_recycler_view, id);
                 }
 
             });
@@ -47,7 +47,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public GroupAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.e("dbg: adapter", "onCreate");
+        //Log.e("dbg: adapter", "onCreate");
         View item = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.group_item, parent, false);
         return new ViewHolder(item);
@@ -55,7 +55,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.e("dbg: adapter", "onBind " + position);
+        //Log.e("dbg: adapter", "onBind " + position);
         GroupEntity group = groups.get(position);
 
         holder.id = group.ID;
