@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.entity.StudentEntity;
+import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
 import ru.shemplo.pluses.network.message.AppMessage;
 import ru.shemplo.pluses.network.message.ControlMessage;
@@ -80,7 +81,9 @@ public class DataProvider {
                 try {
                     ObjectInputStream ois = new ObjectInputStream (is);
                     out.add ((T) ois.readObject ());
-                } catch (ClassNotFoundException cnfe) {}
+                } catch (ClassNotFoundException cnfe) {
+                    cnfe.printStackTrace ();
+                }
             } catch (IOException ioe) {
                 if (is != null) {
                     try {
@@ -101,23 +104,28 @@ public class DataProvider {
         }
 
         if (!file.canRead ()) {
-            file.delete ();
+            int tries = 0;
+            while (!file.delete ()
+                    && tries < 3) {
+                tries += 1;
+            }
         }
         if (!file.exists ()) {
-            file.createNewFile ();
+            int tries = 0;
+            while (!file.createNewFile ()
+                    && tries < 3) {
+                tries += 1;
+            }
         }
 
-        /*
-        Log.i ("DP",file + " "
-                + (System.currentTimeMillis () - modified) + " " + time);*/
-
-
         String [] patterns = {
-                "^groups.bin$",
-                "^group_\\d+.bin$",
-                "^group_\\d+_students.bin$",
-                "^student_\\d+.bin$",
-                "^student_\\d+_topics.bin$"
+            "^groups.bin$",
+            "^group_\\d+.bin$",
+            "^group_\\d+_students.bin$",
+            "^student_\\d+.bin$",
+            "^student_\\d+_topics.bin$",
+            "^topic_\\d+.bin$",
+            "^topic_\\d+_tasks.bin$"
         };
 
         int index = 0;
@@ -163,7 +171,7 @@ public class DataProvider {
                                 int headteacher = -1;
                                 try {
                                     headteacher = Integer.parseInt (info.get (4));
-                                } catch (NumberFormatException nfe) {}
+                                } catch (NumberFormatException nfe) { nfe.getMessage (); }
                                 boolean active = "1".equals (info.get (5).trim ());
 
                                 ObjectOutputStream oos = new ObjectOutputStream (os);
@@ -178,30 +186,39 @@ public class DataProvider {
                 break;
             case 2:
             case 4:
-                String command = "select " + (index == 2 ? "students" : "topics") + " -id " + one;
+            case 6:
+                String command = "select "
+                        + (index == 2
+                            ? "students"
+                            : (index == 4
+                                ? "topics"
+                                : "tasks"))
+                        + " -id " + one;
+                Log.i ("DP", command);
                 DataPullService.addTask (command, file, new AnswerConsumer () {
-                        @Override
-                        public void consume (OutputStream os, AppMessage answer) throws IOException {
-                            if (answer instanceof ListMessage) {
-                                List <Pair <Integer, Integer>> ids
-                                    = ((ListMessage <Pair <Integer, Integer>>) answer).getList ();
+                    @Override
+                    public void consume (OutputStream os, AppMessage answer)
+                            throws IOException {
+                        if (answer instanceof ListMessage) {
+                            List <Pair <Integer, Integer>> ids
+                                = ((ListMessage <Pair <Integer, Integer>>) answer).getList ();
 
-                                List <Integer> current = new ArrayList <> ();
-                                for (Pair <Integer, Integer> id : ids) {
-                                    if (id.S == 0) { current.add (id.F); }
-                                }
-
-                                os.write (BytesManip.I2B (current.size ()));
-                                for (Integer id : current) {
-                                    os.write (BytesManip.I2B (id));
-                                }
-
-                                os.flush ();
-                            } else if (answer instanceof ControlMessage) {
-                                ControlMessage control = (ControlMessage) answer;
-                                Log.e ("DP", control.getComment ());
+                            List <Integer> current = new ArrayList <> ();
+                            for (Pair <Integer, Integer> id : ids) {
+                                if (id.S == 0) { current.add (id.F); }
                             }
+
+                            os.write (BytesManip.I2B (current.size ()));
+                            for (Integer id : current) {
+                                os.write (BytesManip.I2B (id));
+                            }
+
+                            os.flush ();
+                        } else if (answer instanceof ControlMessage) {
+                            ControlMessage control = (ControlMessage) answer;
+                            Log.e ("DP", control.getComment ());
                         }
+                    }
                 });
                 break;
             case 3:
@@ -215,7 +232,7 @@ public class DataProvider {
                                 String firstName = info.get (1);
 
                                 ObjectOutputStream oos = new ObjectOutputStream (os);
-                                oos.writeObject (new StudentEntity (firstName));
+                                oos.writeObject (new StudentEntity (one, firstName));
                                 os.flush ();
                             } else {
                                 Log.e ("DP", "Error: " + answer);
@@ -223,43 +240,54 @@ public class DataProvider {
                         }
                     });
                 break;
+            case 5:
+                DataPullService.addTask ("select info -about topic -id " + one, file,
+                        new AnswerConsumer () {
+                            @Override
+                            public void consume (OutputStream os, AppMessage answer) throws IOException {
+                                if (answer instanceof ListMessage) {
+                                    List <String> info = ((ListMessage <String>) answer).getList ();
+
+                                    String title = info.get (1);
+
+                                    ObjectOutputStream oos = new ObjectOutputStream (os);
+                                    oos.writeObject (new TopicEntity (one, title));
+                                    os.flush ();
+                                } else {
+                                    Log.e ("DP", "Error: " + answer);
+                                }
+                            }
+                        });
+                break;
         }
     }
 
     // Next methods is for the support
     public List <GroupEntity> getGroups () {
         File groupsFile = new File (ROOT_DIR, "groups.bin");
-        try {
-            prepareFile (groupsFile, 0, 0);
-        } catch (IOException ioe) {}
-
         List <Integer> ids = readFromFile (groupsFile, 0);
-        List <GroupEntity> out = readFromFiles ("group", ROOT_DIR, ids);
-
-        return out;
+        return readFromFiles ("group", ROOT_DIR, ids);
     }
 
     public List <StudentEntity> getStudents (int groupID) {
         File studentsFile = new File (ROOT_DIR, "group_" + groupID + "_students.bin");
-        try {
-            prepareFile (studentsFile, groupID, 0);
-        } catch (IOException ioe) {}
-
         List <Integer> ids = readFromFile (studentsFile, groupID);
-        List <StudentEntity> out = readFromFiles ("student", ROOT_DIR, ids);
-
-        return out;
+        return readFromFiles ("student", ROOT_DIR, ids);
     }
 
     public List <TopicEntity> getTopics (int studentID) {
         File topicsFile = new File (ROOT_DIR, "student_" + studentID + "_topics.bin");
-        try {
-            prepareFile (topicsFile, studentID, 0);
-        } catch (IOException ioe) {}
-
-
         List <Integer> ids = readFromFile (topicsFile, studentID);
-        List <TopicEntity> out = readFromFiles ("topic", ROOT_DIR, ids);
+        return readFromFiles ("topic", ROOT_DIR, ids);
+    }
+
+    public List <TaskEntity> getTasks (int topicID) {
+        File topicsFile = new File (ROOT_DIR, "topic_" + topicID + "_tasks.bin");
+        List <Integer> ids = readFromFile (topicsFile, topicID);
+        List <TaskEntity> out = new ArrayList <> ();
+        for (Integer id : ids) {
+            out.add (new TaskEntity ("" + id));
+        }
 
         return out;
     }
