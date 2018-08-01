@@ -108,7 +108,12 @@ public class DataPullService extends Service {
                                 connection = new AppConnection (false);
                             }
 
-                            connection.sendMessage (message);
+                            if (connection.isAlive ()) {
+                                connection.sendMessage (message);
+                            } else {
+                                TASKS.add (task); // Rollback task
+                                Thread.sleep (250);
+                            }
                         } catch (InterruptedException ie) {
                             Log.i ("DPS-T", "I was interrupted");
                             isAlive = false;
