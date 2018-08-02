@@ -43,12 +43,13 @@ public class DataSupplier {
             oos.writeObject (entity);
             os.flush ();
         } catch (IOException ioe) {
-
+            ioe.printStackTrace ();
         } finally {
             if (os != null) {
                 try {
-                    lock.release (); os.close ();
-                } catch (IOException ioe2) { ioe2.getMessage (); }
+                    lock.release ();
+                    os.close ();
+                } catch (IOException ioe) { ioe.getMessage (); }
             }
         }
     }

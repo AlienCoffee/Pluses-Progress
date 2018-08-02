@@ -21,6 +21,7 @@ import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
 import ru.shemplo.pluses.layout.DiaryMainActivity;
 import ru.shemplo.pluses.network.DataProvider;
+import ru.shemplo.pluses.network.DataSupplier;
 import ru.shemplo.pluses.network.service.DataPullService;
 
 public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -56,6 +57,7 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             taskName = (TextView) itemView.findViewById(R.id.task_name);
             solved = (CheckBox) itemView.findViewById(R.id.box_solved);
 
+            final View v = view;
             solved.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
 
                 @Override
@@ -67,6 +69,8 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         teacherID, studentID, verdict, groupID, topicID, id);
 
                     Log.i ("TA", "Command: " + command);
+                    DataSupplier supplier = new DataSupplier (v.getContext ());
+                    supplier.insertTry (studentID, groupID, topicID, id, verdict);
                     DataPullService.addTask (command, null, null);
                 }
 
