@@ -19,6 +19,6 @@
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/background_light"
-        android:textSize="18sp" />
+        android:textSize="24sp" />
 
 </LinearLayout>
