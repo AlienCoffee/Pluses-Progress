@@ -1,7 +1,6 @@
 package ru.shemplo.pluses.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import java.util.List;
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.StudentEntity;
 import ru.shemplo.pluses.layout.DiaryMainActivity;
-import ru.shemplo.pluses.network.DataProvider;
 
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHolder> {
 
@@ -36,9 +34,6 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
                 @Override
                 public void onClick (View v) {
                     DiaryMainActivity.page.switchFragment(R.id.topic_recycler_view, id, studentName.getText());
-
-                    DataProvider provider = new DataProvider (v.getContext ());
-                    Log.i ("SA", "Topics: " + provider.getTopics (id));
                 }
 
             });

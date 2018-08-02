@@ -1,6 +1,8 @@
 package ru.shemplo.pluses.entity;
 
-public class TryEntity {
+import java.io.Serializable;
+
+public class TryEntity implements Serializable {
 
     public final int STUDENT, GROUP, TOPIC, TASK, VERDICT;
 
@@ -8,6 +10,10 @@ public class TryEntity {
         this.STUDENT = studentID; this.GROUP = groupID;
         this.TASK = taskID; this.VERDICT = verdict;
         this.TOPIC = topicID;
+    }
+
+    public String toString () {
+        return "<" + TOPIC + ", " + TASK + ", " + (VERDICT == 1) + ">";
     }
 
 }

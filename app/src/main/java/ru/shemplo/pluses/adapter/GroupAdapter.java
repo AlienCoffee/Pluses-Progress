@@ -61,7 +61,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         holder.groupName.setText(group.getName());
         holder.teacherName.setText(group.getTeacher());
 
-        DataProvider provider = new DataProvider (holder.groupName.getContext ());
+        DataProvider provider = new DataProvider (DiaryMainActivity.page);
         holder.studentsCount.setText ("" + provider.getStudents (group.ID).size ());
     }
 
