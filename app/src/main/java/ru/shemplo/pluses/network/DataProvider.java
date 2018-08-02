@@ -99,7 +99,6 @@ public class DataProvider {
                 if (is != null) {
                     try {
                         is.close ();
-                        file.delete ();
                     } catch (IOException ioe) {
                         ioe.printStackTrace ();
                     }
@@ -114,7 +113,7 @@ public class DataProvider {
         if (file.exists () && file.canRead ()) {
             long modified = file.lastModified (), time = 1000 * 60 * 2;
             if (System.currentTimeMillis () - modified < time) { return; }
-        } else if (!file.canRead ()) {
+        } else if (!file.canRead () && file.exists ()) {
             int tries = 0;
             while (!file.delete ()
                     && tries < 3) {
