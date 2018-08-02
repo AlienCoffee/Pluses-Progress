@@ -10,8 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.List;
 import java.util.Stack;
 
 import ru.shemplo.pluses.R;
@@ -77,27 +77,30 @@ public class DiaryMainActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
 
         findViewById(R.id.toolbar_update_button).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Fragment fragment = getFragmentManager().findFragmentById(R.id.main_frame);
-                        if (fragment == null) {
-                            Log.e("ERROR", "Cannot update, fragment is null");
-                            return;
-                        }
-                        if (group == -1) {
-                            Log.i("DMA", "Update groups");
-                            ((GroupsFragment) fragment).updateData();
-                        } else if (student == -1) {
-                            Log.i("DMA", "Update students");
-                            ((StudentsFragment) fragment).updateData(group);
-                        } else {
-                            Log.i("DMA", "Update topics");
-                            ((TopicsFragment) fragment).updateData(student);
-                        }
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Fragment fragment = getFragmentManager().findFragmentById(R.id.main_frame);
+                    Toast toast = Toast.makeText (DiaryMainActivity.page,
+                        "Update button clicked", Toast.LENGTH_SHORT);
+                    toast.show ();
+                    if (fragment == null) {
+                        Log.e("ERROR", "Cannot update, fragment is null");
+                        return;
                     }
+                    if (group == -1) {
+                        Log.i("DMA", "Update groups");
+                        ((GroupsFragment) fragment).updateData();
+                    } else if (student == -1) {
+                        Log.i("DMA", "Update students");
+                        ((StudentsFragment) fragment).updateData(group);
+                    } else {
+                        Log.i("DMA", "Update topics");
+                        ((TopicsFragment) fragment).updateData(student);
+                    }
+                }
 
-                });
+            });
     }
 
     public void switchFragment(int fragment, int id, CharSequence heading) {

@@ -56,25 +56,6 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             taskName = (TextView) itemView.findViewById(R.id.task_name);
             solved = (CheckBox) itemView.findViewById(R.id.box_solved);
-
-            final View v = view;
-            solved.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener () {
-
-                @Override
-                public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
-                    int groupID = DiaryMainActivity.group, studentID = DiaryMainActivity.student;
-                    int teacherID = 1, verdict = isChecked ? 1 : 0;
-                    String command = String.format (Locale.ENGLISH,
-                        "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
-                        teacherID, studentID, verdict, groupID, topicID, id);
-
-                    Log.i ("TA", "Command: " + command);
-                    DataSupplier supplier = new DataSupplier (v.getContext ());
-                    supplier.insertTry (studentID, groupID, topicID, id, verdict);
-                    DataPullService.addTask (command, null, null);
-                }
-
-            });
         }
 
         public void setName(String name) {
@@ -101,10 +82,10 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public TopicAdapter(List<TopicEntity> topics, Context context) {
         data = new ArrayList<>();
         DataProvider provider = new DataProvider(context);
+        int studentID = DiaryMainActivity.student;
         for (TopicEntity topic : topics) {
             data.add(topic);
-            data.addAll(provider.getTasks(topic.getID()));
-            // TODO: add tasks here
+            data.addAll(provider.getTasksWithProgress (topic.ID, studentID));
         }
     }
 
@@ -141,9 +122,29 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             TaskViewHolder viewHolder = (TaskViewHolder) holder;
             viewHolder.setName(task.TITLE);
 
-            viewHolder.solved.setChecked (task.isSolved ());
             viewHolder.topicID = task.TOPIC_ID;
             viewHolder.id = task.ID;
+
+            final int topicID = task.TOPIC_ID, taskID = task.ID;
+            viewHolder.solved.setChecked (task.isSolved ());
+            viewHolder.solved.setOnCheckedChangeListener (
+                    new CompoundButton.OnCheckedChangeListener () {
+
+                @Override
+                public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
+                    int groupID = DiaryMainActivity.group, studentID = DiaryMainActivity.student;
+                    int teacherID = 1, verdict = isChecked ? 1 : 0;
+                    String command = String.format (Locale.ENGLISH,
+                        "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
+                        teacherID, studentID, verdict, groupID, topicID, taskID);
+
+                    Log.i ("TA", "Command: " + command);
+                    DataSupplier supplier = new DataSupplier (DiaryMainActivity.page);
+                    supplier.insertTry (studentID, groupID, topicID, taskID, verdict);
+                    DataPullService.addTask (command, null, null);
+                }
+
+            });
         } else {
             Log.e("dbg: ERROR", "undefined");
         }
