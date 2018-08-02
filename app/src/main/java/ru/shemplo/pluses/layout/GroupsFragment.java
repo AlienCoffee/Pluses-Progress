@@ -14,6 +14,7 @@ import java.util.List;
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.adapter.GroupAdapter;
 import ru.shemplo.pluses.entity.GroupEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 
 public class GroupsFragment extends Fragment {
@@ -63,4 +64,13 @@ public class GroupsFragment extends Fragment {
         adapter = new GroupAdapter (groups);
         recyclerView.setAdapter(adapter);
     }
+
+    public void updateData () {
+        DataProvider provider = new DataProvider (context);
+        groups = provider.getGroups ();
+
+        adapter = new GroupAdapter (groups);
+        recyclerView.setAdapter(adapter);
+    }
+
 }

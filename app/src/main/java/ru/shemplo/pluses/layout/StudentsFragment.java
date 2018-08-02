@@ -12,8 +12,10 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.adapter.GroupAdapter;
 import ru.shemplo.pluses.adapter.StudentAdapter;
 import ru.shemplo.pluses.entity.StudentEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 
 public class StudentsFragment extends Fragment {
@@ -24,7 +26,8 @@ public class StudentsFragment extends Fragment {
     List<StudentEntity> students;
     Context context;
 
-    public StudentsFragment() {}
+    public StudentsFragment() {
+    }
 
     public void setContext(Context context) {
         this.context = context;
@@ -51,14 +54,22 @@ public class StudentsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated (View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         //Log.e("dbg", "onViewCreated");
-        super.onViewCreated (view, savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.student_recycler_view);
 
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new StudentAdapter(students);
+        recyclerView.setAdapter(adapter);
+    }
+
+    public void updateData(int id) {
+        DataProvider provider = new DataProvider(context);
+        students = provider.getStudents(id);
 
         adapter = new StudentAdapter(students);
         recyclerView.setAdapter(adapter);

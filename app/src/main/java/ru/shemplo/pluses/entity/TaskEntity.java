@@ -1,41 +1,24 @@
 package ru.shemplo.pluses.entity;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TaskEntity implements MyEntity {
 
-    private final String name; // Must be short
+    public final int TOPIC_ID, ID;
+    public final String TITLE;
+
     private boolean isSolved = false;
-    //TODO: fields
 
-    //TODO: remove
-    private int x;
-    public TaskEntity() {
-        isSolved = false;
-        name = (x++) + "";
+    public TaskEntity (int id, String title, int topicID) {
+        this.TOPIC_ID = topicID; this.ID = id;
+        this.TITLE = title;
     }
 
-    public TaskEntity(String name) {
-        isSolved = false;
-        this.name = name;
-    }
-
-    public TaskEntity(String name, boolean isSolved) {
+    public void setState (boolean isSolved) {
         this.isSolved = isSolved;
-        this.name = name;
     }
 
-
-    public boolean getSolved() {
+    public boolean isSolved () {
         return isSolved;
     }
-
-    public String getName() {
-        return name;
-    }
-
-
 
 }

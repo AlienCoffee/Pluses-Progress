@@ -12,12 +12,14 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import ru.shemplo.pluses.R;
+import ru.shemplo.pluses.adapter.StudentAdapter;
 import ru.shemplo.pluses.adapter.TopicAdapter;
 import ru.shemplo.pluses.entity.TopicEntity;
+import ru.shemplo.pluses.network.DataProvider;
 
 
 public class TopicsFragment extends Fragment {
-    private RecyclerView topicsRecycler;
+    private RecyclerView recyclerView;
     private TopicAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
@@ -55,10 +57,22 @@ public class TopicsFragment extends Fragment {
         //Log.e("dbg: TopicsFragment", "onViewCreated");
         super.onViewCreated (view, savedInstanceState);
 
-        topicsRecycler = (RecyclerView) view.findViewById(R.id.topic_recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.topic_recycler_view);
         layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        topicsRecycler.setLayoutManager(layoutManager);
-        adapter = new TopicAdapter(topics);
-        topicsRecycler.setAdapter(adapter);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new TopicAdapter(topics, context);
+        recyclerView.setAdapter(adapter);
+    }
+
+    public void updateData (int id) {
+        DataProvider provider = new DataProvider (context);
+        topics = provider.getTopics (id);
+
+        //TODO: why updating without new LM causes strange layout behavior
+        layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new TopicAdapter(topics, context);
+        recyclerView.setAdapter(adapter);
     }
 }
