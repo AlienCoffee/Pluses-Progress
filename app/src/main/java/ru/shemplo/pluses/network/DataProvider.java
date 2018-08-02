@@ -5,13 +5,16 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,11 +22,13 @@ import ru.shemplo.pluses.entity.GroupEntity;
 import ru.shemplo.pluses.entity.StudentEntity;
 import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
+import ru.shemplo.pluses.entity.TryEntity;
 import ru.shemplo.pluses.network.message.AppMessage;
 import ru.shemplo.pluses.network.message.ControlMessage;
 import ru.shemplo.pluses.network.message.ListMessage;
 import ru.shemplo.pluses.network.service.DataPullService;
 import ru.shemplo.pluses.struct.Pair;
+import ru.shemplo.pluses.struct.Trio;
 import ru.shemplo.pluses.util.AnswerConsumer;
 import ru.shemplo.pluses.util.BytesManip;
 
@@ -125,7 +130,8 @@ public class DataProvider {
             "^student_\\d+.bin$",
             "^student_\\d+_topics.bin$",
             "^topic_\\d+.bin$",
-            "^topic_\\d+_tasks.bin$"
+            "^topic_\\d+_tasks.bin$",
+            "^student_\\d+_tries.bin$"
         };
 
         int index = 0;
@@ -222,9 +228,10 @@ public class DataProvider {
                                 List <String> info = ((ListMessage <String>) answer).getList ();
 
                                 String firstName = info.get (1);
+                                String lastName = info.get (2);
 
                                 ObjectOutputStream oos = new ObjectOutputStream (os);
-                                oos.writeObject (new StudentEntity (one, firstName));
+                                oos.writeObject (new StudentEntity (one, firstName, lastName));
                                 os.flush ();
                             } else {
                                 Log.e ("DP", "Error: " + answer);
@@ -276,6 +283,31 @@ public class DataProvider {
                         }
                 });
                 break;
+            case 7:
+                DataPullService.addTask ("select progress -student " + one, file,
+                    new AnswerConsumer () {
+                        @Override
+                        public void consume (OutputStream os, AppMessage answer)
+                                throws IOException {
+                            if (answer instanceof ListMessage) {
+                                ListMessage <Trio <Integer, Integer, Boolean>>
+                                    progress = (ListMessage <Trio <Integer, Integer, Boolean>>) answer;
+                                List <Trio <Integer, Integer, Boolean>> list = progress.getList ();
+
+                                ObjectOutputStream oos = new ObjectOutputStream (os);
+                                oos.writeInt (list.size ());
+                                for (int i = 0; i < list.size (); i++) {
+                                    oos.writeObject (list.get (i));
+                                }
+
+                                os.flush ();
+                            } else if (answer instanceof ControlMessage) {
+                                ControlMessage control = (ControlMessage) answer;
+                                Log.e ("DP", control.getComment ());
+                            }
+                        }
+                    });
+                break;
         }
     }
 
@@ -320,10 +352,120 @@ public class DataProvider {
                 }
             }
         } catch (IOException ioe) {
+            ioe.printStackTrace ();
+        } finally {
             if (is != null) {
                 try {
                     is.close ();
-                } catch (IOException ioe2) { ioe2.getMessage (); }
+                } catch (IOException ioe) { ioe.getMessage (); }
+            }
+        }
+
+        return out;
+    }
+
+    public List <TaskEntity> getTasksWithProgress (int topicID, int studentID) {
+        File localFile = new File (ROOT_DIR, "local_student_" + studentID + "_tries.bin");
+        File triesFile = new File (ROOT_DIR, "student_" + studentID + "_tries.bin");
+        List <TaskEntity> out = getTasks (topicID);
+        InputStream is = null, lis = null;
+
+        try {
+            prepareFile (triesFile, studentID, 0);
+            lis = new FileInputStream (localFile);
+            is = new FileInputStream (triesFile);
+
+            List <Trio <Integer, Integer, Boolean>> tries = new ArrayList <> ();
+            ObjectInputStream ois = new ObjectInputStream (is);
+            int size = ois.readInt ();
+            try {
+                for (int i = 0; i < size; i++) {
+                    tries.add ((Trio <Integer, Integer, Boolean>) ois.readObject ());
+                }
+            } catch (ClassNotFoundException | ClassCastException cnfe) {
+                cnfe.printStackTrace ();
+            }
+
+            for (TaskEntity task : out) {
+                for (int i = 0; i < tries.size (); i++) {
+                    Trio <Integer, Integer, Boolean> trio = tries.get (i);
+                    if (task.TOPIC_ID == trio.F && task.ID == trio.S) {
+                        task.setState (trio.T);
+                    }
+                }
+            }
+
+            ObjectInputStream lois = new ObjectInputStream (lis);
+            List <TryEntity> localTries = new ArrayList <> ();
+            try {
+                Object tmp = null;
+                while ((tmp = lois.readObject ()) != null) {
+                    localTries.add ((TryEntity) tmp);
+                }
+            } catch (ClassNotFoundException | ClassCastException cnfe) {
+                cnfe.printStackTrace ();
+            }
+
+            List <TryEntity> rest = new ArrayList <> ();
+            for (TryEntity attempt : localTries) {
+                for (int i = 0; i < tries.size (); i++) {
+                    Trio <Integer, Integer, Boolean> trio = tries.get (i);
+                    if (attempt.TOPIC == trio.F && attempt.TASK == trio.S
+                            && attempt.VERDICT != (trio.T ? 1 : 0)) {
+                        rest.add (attempt);
+                    }
+                }
+            }
+
+            for (TryEntity attempt : rest) {
+                for (int i = 0; i < out.size (); i++) {
+                    TaskEntity entity = out.get (i);
+                    if (attempt.TOPIC == entity.TOPIC_ID && attempt.TASK == entity.ID) {
+                        entity.setState (attempt.VERDICT == 1);
+                    }
+                }
+            }
+
+            long modified = localFile.lastModified (),
+                    now = System.currentTimeMillis ();
+            if (now - modified > 1000 * 60 * 60) { // 1 hour
+                for (TryEntity attempt : rest) {
+                    String command = String.format (Locale.ENGLISH,
+                        "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
+                        1, studentID, attempt.VERDICT, attempt.GROUP, topicID, attempt.TASK);
+                    DataPullService.addTask (command, null, null);
+                }
+            }
+
+            lis.close ();
+            lis = null;
+
+            FileOutputStream fos = new FileOutputStream (localFile, false);
+            FileLock lock = fos.getChannel ().lock ();
+
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream (fos);
+                for (TryEntity attempt : rest) {
+                    oos.writeObject (attempt);
+                }
+            } finally {
+                lock.release ();
+                fos.flush ();
+                fos.close ();
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace ();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close ();
+                } catch (IOException ioe) { ioe.getMessage (); }
+            }
+
+            if (lis != null) {
+                try {
+                    lis.close ();
+                } catch (IOException ioe) { ioe.getMessage (); }
             }
         }
 

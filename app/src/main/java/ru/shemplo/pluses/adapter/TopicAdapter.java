@@ -13,12 +13,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.entity.MyEntity;
 import ru.shemplo.pluses.entity.TaskEntity;
 import ru.shemplo.pluses.entity.TopicEntity;
+import ru.shemplo.pluses.layout.DiaryMainActivity;
 import ru.shemplo.pluses.network.DataProvider;
+import ru.shemplo.pluses.network.service.DataPullService;
 
 public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -45,6 +48,8 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private TextView taskName;
         private CheckBox solved;
 
+        private int id, topicID;
+
         public TaskViewHolder(View view) {
             super(view);
 
@@ -55,7 +60,14 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 @Override
                 public void onCheckedChanged (CompoundButton buttonView, boolean isChecked) {
-                    Log.i ("TA", "Is checked: " + isChecked);
+                    int groupID = DiaryMainActivity.group, studentID = DiaryMainActivity.student;
+                    int teacherID = 1, verdict = isChecked ? 1 : 0;
+                    String command = String.format (Locale.ENGLISH,
+                        "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
+                        teacherID, studentID, verdict, groupID, topicID, id);
+
+                    Log.i ("TA", "Command: " + command);
+                    DataPullService.addTask (command, null, null);
                 }
 
             });
@@ -124,6 +136,10 @@ public class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             TaskEntity task = (TaskEntity) data.get(position);
             TaskViewHolder viewHolder = (TaskViewHolder) holder;
             viewHolder.setName(task.TITLE);
+
+            viewHolder.solved.setChecked (task.isSolved ());
+            viewHolder.topicID = task.TOPIC_ID;
+            viewHolder.id = task.ID;
         } else {
             Log.e("dbg: ERROR", "undefined");
         }

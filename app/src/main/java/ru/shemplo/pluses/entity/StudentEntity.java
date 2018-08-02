@@ -6,9 +6,9 @@ public class StudentEntity implements MyEntity {
     private final String FIRST_NAME, LAST_NAME;
     public final int ID;
 
-    public StudentEntity (int id, String firstName) {
+    public StudentEntity (int id, String firstName, String lastName) {
         this.FIRST_NAME = firstName;
-        this.LAST_NAME = "Ivanov";//TODO: add last name support
+        this.LAST_NAME = lastName;
         this.ID = id;
     }
 
