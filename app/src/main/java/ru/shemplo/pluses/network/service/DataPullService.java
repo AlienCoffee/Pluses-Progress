@@ -78,7 +78,9 @@ public class DataPullService extends Service {
                                         if (!file.exists ()) {
                                             try {
                                                 file.createNewFile ();
-                                            } catch (IOException ioe) {}
+                                            } catch (IOException ioe) {
+                                                ioe.printStackTrace ();
+                                            }
                                         }
 
                                         OutputStream os = null;
@@ -87,11 +89,19 @@ public class DataPullService extends Service {
                                             os = new FileOutputStream (file, false);
                                             lock = ((FileOutputStream) os).getChannel ().lock ();
                                             trio.T.consume (os, appAnswer);
-                                        } catch (IOException ioe) {} finally {
-                                            try {
-                                                lock.release ();
-                                                os.close ();
-                                            } catch (IOException ioe) {}
+                                        } catch (IOException ioe) {
+                                            ioe.printStackTrace ();
+                                        } finally {
+                                            if (os != null) {
+                                                try {
+                                                    if (lock != null) {
+                                                        lock.release ();
+                                                    }
+                                                    os.close ();
+                                                } catch (IOException ioe) {
+                                                    ioe.printStackTrace ();
+                                                }
+                                            }
                                         }
                                     }
                                 }
