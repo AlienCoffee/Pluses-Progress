@@ -114,15 +114,14 @@ public class DataProvider {
         if (file.exists () && file.canRead ()) {
             long modified = file.lastModified (), time = 1000 * 60 * 2;
             if (System.currentTimeMillis () - modified < time) { return; }
-        }
-
-        if (!file.canRead ()) {
+        } else if (!file.canRead ()) {
             int tries = 0;
             while (!file.delete ()
                     && tries < 3) {
                 tries += 1;
             }
         }
+
         if (!file.exists ()) {
             int tries = 0;
             while (!file.createNewFile ()
