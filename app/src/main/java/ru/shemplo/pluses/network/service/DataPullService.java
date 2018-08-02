@@ -69,8 +69,12 @@ public class DataPullService extends Service {
 
                                         Trio <String, File, AnswerConsumer>
                                                 trio = needCompute.remove (id);
-
                                         File file = trio.S;
+
+                                        // This task doesn't want to write anything
+                                        if (file == null) { continue; }
+
+                                        // This task wants to write something
                                         if (!file.exists ()) {
                                             try {
                                                 file.createNewFile ();
