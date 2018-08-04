@@ -60,11 +60,15 @@ public class DataProvider {
                 is.read (buffer, 0, buffer.length);
                 out.add (BytesManip.B2I (buffer));
             }
-        } catch (IOException ioe) {} finally {
+        } catch (IOException ioe) {
+            ioe.printStackTrace ();
+        } finally {
             if (is != null) {
                 try {
                     is.close ();
-                } catch (IOException ioe2) {}
+                } catch (IOException ioe) {
+                    ioe.printStackTrace ();
+                }
             }
         }
 
@@ -90,11 +94,14 @@ public class DataProvider {
                     cnfe.printStackTrace ();
                 }
             } catch (IOException ioe) {
+                ioe.printStackTrace ();
+            } finally {
                 if (is != null) {
                     try {
                         is.close ();
-                        file.delete ();
-                    } catch (IOException ioe2) {}
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace ();
+                    }
                 }
             }
         }
@@ -106,15 +113,14 @@ public class DataProvider {
         if (file.exists () && file.canRead ()) {
             long modified = file.lastModified (), time = 1000 * 60 * 2;
             if (System.currentTimeMillis () - modified < time) { return; }
-        }
-
-        if (!file.canRead ()) {
+        } else if (!file.canRead () && file.exists ()) {
             int tries = 0;
             while (!file.delete ()
                     && tries < 3) {
                 tries += 1;
             }
         }
+
         if (!file.exists ()) {
             int tries = 0;
             while (!file.createNewFile ()
@@ -311,6 +317,43 @@ public class DataProvider {
         }
     }
 
+    public <T> List <T> readManyFromFile (File file, final int one, final int two) {
+        List <T> out = new ArrayList <> ();
+        InputStream is = null;
+        try {
+            prepareFile (file, one, two);
+            is = new FileInputStream (file);
+
+            Log.i ("DP", "IS available: " + is.available ());
+            if (is.available () > 0) {
+                ObjectInputStream ois = new ObjectInputStream (is);
+                Log.i ("DP", "OIS available: " + ois.available ());
+                if (ois.available () >= 4) {
+                    try {
+                        int size = ois.readInt ();
+                        for (int i = 0; i < size; i++) {
+                            out.add ((T) ois.readObject ());
+                        }
+                    } catch (ClassNotFoundException | ClassCastException ce) {
+                        ce.printStackTrace ();
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace ();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close ();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace ();
+                }
+            }
+        }
+
+        return out;
+    }
+
     // Next methods is for the support
     public List <GroupEntity> getGroups () {
         File groupsFile = new File (ROOT_DIR, "groups.bin");
@@ -339,16 +382,18 @@ public class DataProvider {
             prepareFile (tasksFile, topicID, 0);
             is = new FileInputStream (tasksFile);
 
-            ObjectInputStream ois = new ObjectInputStream (is);
-            int size = ois.readInt ();
+            if (is.available () > 0) {
+                ObjectInputStream ois = new ObjectInputStream (is);
+                int size = ois.readInt ();
 
-            for (int i = 0; i < size; i++) {
-                try {
-                    Object tmp = ois.readObject ();
-                    Pair <Integer, String> task = (Pair <Integer, String>) tmp;
-                    out.add (new TaskEntity (task.F, task.S, topicID));
-                } catch (ClassNotFoundException cnfe) {
-                    cnfe.getMessage ();
+                for (int i = 0; i < size; i++) {
+                    try {
+                        Object tmp = ois.readObject ();
+                        Pair <Integer, String> task = (Pair <Integer, String>) tmp;
+                        out.add (new TaskEntity (task.F, task.S, topicID));
+                    } catch (ClassNotFoundException cnfe) {
+                        cnfe.getMessage ();
+                    }
                 }
             }
         } catch (IOException ioe) {
@@ -368,104 +413,85 @@ public class DataProvider {
         File localFile = new File (ROOT_DIR, "local_student_" + studentID + "_tries.bin");
         File triesFile = new File (ROOT_DIR, "student_" + studentID + "_tries.bin");
         List <TaskEntity> out = getTasks (topicID);
-        InputStream is = null, lis = null;
 
+        List <TryEntity> localTries = readManyFromFile (localFile, 0, 0);
+        Log.i ("DP", "LT: " + localTries.toString ());
+        List <Trio <Integer, Integer, Boolean>>
+            tries = readManyFromFile (triesFile, studentID, 0);
+        Log.i ("DP", "T: " + tries.toString ());
+
+        for (TaskEntity task : out) {
+            for (int i = 0; i < tries.size (); i++) {
+                Trio <Integer, Integer, Boolean> trio = tries.get (i);
+                if (task.TOPIC_ID == trio.F && task.ID == trio.S) {
+                    task.setState (trio.T);
+                }
+            }
+        }
+
+        List <TryEntity> different = new ArrayList <> ();
+        for (TryEntity attempt : localTries) {
+            boolean wasFound = false;
+            for (int i = 0; i < tries.size (); i++) {
+                Trio <Integer, Integer, Boolean> trio = tries.get (i);
+                if (attempt.TOPIC == trio.F && attempt.TASK == trio.S
+                        && attempt.VERDICT != (trio.T ? 1 : 0)) {
+                    different.add (attempt);
+                    wasFound = true;
+                    break;
+                }
+            }
+
+            if (!wasFound) {
+                different.add (attempt);
+            }
+        }
+        Log.i ("DP", "Dif: " + different.toString ());
+
+        for (TryEntity attempt : different) {
+            for (int i = 0; i < out.size (); i++) {
+                TaskEntity entity = out.get (i);
+                if (attempt.TOPIC == entity.TOPIC_ID && attempt.TASK == entity.ID) {
+                    entity.setState (attempt.VERDICT == 1);
+                }
+            }
+        }
+
+        long modified = localFile.lastModified (),
+                now = System.currentTimeMillis ();
+        if (now - modified > 1000 * 60 * 60) { // 1 hour
+            for (TryEntity attempt : different) {
+                String command = String.format (Locale.ENGLISH,
+                    "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
+                    1, studentID, attempt.VERDICT, attempt.GROUP, topicID, attempt.TASK);
+                DataPullService.addTask (command, null, null);
+            }
+        }
+
+        FileOutputStream fos = null;
+        FileLock lock = null;
         try {
-            prepareFile (triesFile, studentID, 0);
-            lis = new FileInputStream (localFile);
-            is = new FileInputStream (triesFile);
+            prepareFile (localFile, 0, 0);
+            fos = new FileOutputStream (localFile);
+            lock = fos.getChannel ().lock ();
 
-            List <Trio <Integer, Integer, Boolean>> tries = new ArrayList <> ();
-            ObjectInputStream ois = new ObjectInputStream (is);
-            int size = ois.readInt ();
-            try {
-                for (int i = 0; i < size; i++) {
-                    tries.add ((Trio <Integer, Integer, Boolean>) ois.readObject ());
-                }
-            } catch (ClassNotFoundException | ClassCastException cnfe) {
-                cnfe.printStackTrace ();
-            }
-
-            for (TaskEntity task : out) {
-                for (int i = 0; i < tries.size (); i++) {
-                    Trio <Integer, Integer, Boolean> trio = tries.get (i);
-                    if (task.TOPIC_ID == trio.F && task.ID == trio.S) {
-                        task.setState (trio.T);
-                    }
-                }
-            }
-
-            ObjectInputStream lois = new ObjectInputStream (lis);
-            List <TryEntity> localTries = new ArrayList <> ();
-            try {
-                Object tmp = null;
-                while ((tmp = lois.readObject ()) != null) {
-                    localTries.add ((TryEntity) tmp);
-                }
-            } catch (ClassNotFoundException | ClassCastException cnfe) {
-                cnfe.printStackTrace ();
-            }
-
-            List <TryEntity> rest = new ArrayList <> ();
-            for (TryEntity attempt : localTries) {
-                for (int i = 0; i < tries.size (); i++) {
-                    Trio <Integer, Integer, Boolean> trio = tries.get (i);
-                    if (attempt.TOPIC == trio.F && attempt.TASK == trio.S
-                            && attempt.VERDICT != (trio.T ? 1 : 0)) {
-                        rest.add (attempt);
-                    }
-                }
-            }
-
-            for (TryEntity attempt : rest) {
-                for (int i = 0; i < out.size (); i++) {
-                    TaskEntity entity = out.get (i);
-                    if (attempt.TOPIC == entity.TOPIC_ID && attempt.TASK == entity.ID) {
-                        entity.setState (attempt.VERDICT == 1);
-                    }
-                }
-            }
-
-            long modified = localFile.lastModified (),
-                    now = System.currentTimeMillis ();
-            if (now - modified > 1000 * 60 * 60) { // 1 hour
-                for (TryEntity attempt : rest) {
-                    String command = String.format (Locale.ENGLISH,
-                        "insert try -teacher %d -student %d -verdict %d -group %d -topic %d -task %d",
-                        1, studentID, attempt.VERDICT, attempt.GROUP, topicID, attempt.TASK);
-                    DataPullService.addTask (command, null, null);
-                }
-            }
-
-            lis.close ();
-            lis = null;
-
-            FileOutputStream fos = new FileOutputStream (localFile, false);
-            FileLock lock = fos.getChannel ().lock ();
-
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream (fos);
-                for (TryEntity attempt : rest) {
-                    oos.writeObject (attempt);
-                }
-            } finally {
-                lock.release ();
-                fos.flush ();
-                fos.close ();
+            ObjectOutputStream oos = new ObjectOutputStream (fos);
+            oos.writeInt (different.size ());
+            for (int i = 0; i < different.size (); i++) {
+                oos.writeObject (different.get (i));
             }
         } catch (IOException ioe) {
             ioe.printStackTrace ();
         } finally {
-            if (is != null) {
+            if (fos != null) {
                 try {
-                    is.close ();
-                } catch (IOException ioe) { ioe.getMessage (); }
-            }
-
-            if (lis != null) {
-                try {
-                    lis.close ();
-                } catch (IOException ioe) { ioe.getMessage (); }
+                    if (lock != null) {
+                        lock.release ();
+                    }
+                    fos.close ();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace ();
+                }
             }
         }
 

@@ -3,6 +3,8 @@ package ru.shemplo.pluses.entity;
 
 public class TaskEntity implements MyEntity {
 
+    private static final long serialVersionUID = 0L;
+
     public final int TOPIC_ID, ID;
     public final String TITLE;
 

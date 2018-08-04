@@ -6,49 +6,68 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import ru.shemplo.pluses.entity.TryEntity;
 
 public class DataSupplier {
 
+    private final DataProvider PROVIDER;
     private final File ROOT_DIR;
 
     public DataSupplier (Context context) {
+        this.PROVIDER = new DataProvider (context);
         this.ROOT_DIR = context.getFilesDir ();
     }
 
     public void insertTry (int studentID, int groupID, int topicID, int taskID, int verdict) {
         File triesFile = new File (ROOT_DIR, "local_student_" + studentID + "_tries.bin");
-        if (!triesFile.exists ()) {
-            try {
-                int tries = 0;
-                while (!triesFile.createNewFile ()
-                        && tries < 3) {
-                    tries += 1;
-                }
-            } catch (IOException ioe) { ioe.getMessage (); }
+        List <TryEntity> localTries = PROVIDER.readManyFromFile (triesFile, 0, 0);
+
+        List <TryEntity> rest = new ArrayList <> ();
+        Set <String> exists = new HashSet <> ();
+
+        TryEntity entity = new TryEntity (studentID, groupID, topicID, taskID, verdict);
+        exists.add (entity.TOPIC + " " + entity.TASK);
+        rest.add (entity);
+
+        for (TryEntity attempt : localTries) {
+            if (!exists.contains (attempt.TOPIC + " " + attempt.TASK)) {
+                exists.add (attempt.TOPIC + " " + attempt.TASK);
+                rest.add (attempt);
+            }
         }
 
-        OutputStream os = null;
+        FileOutputStream fos = null;
         FileLock lock = null;
+
         try {
-            os = new FileOutputStream (triesFile, true);
-            lock = ((FileOutputStream) os).getChannel ().lock ();
+            fos = new FileOutputStream (triesFile);
+            lock = fos.getChannel ().lock ();
 
-            ObjectOutputStream oos = new ObjectOutputStream (os);
-            TryEntity entity = new TryEntity (studentID, groupID, topicID, taskID, verdict);
+            ObjectOutputStream oos = new ObjectOutputStream (fos);
+            oos.writeInt (rest.size ());
+            for (int i = 0; i < rest.size (); i++) {
+                oos.writeObject (rest.get (i));
+            }
 
-            oos.writeObject (entity);
-            os.flush ();
+            fos.flush ();
         } catch (IOException ioe) {
-
+            ioe.printStackTrace ();
         } finally {
-            if (os != null) {
+            if (fos != null) {
                 try {
-                    lock.release (); os.close ();
-                } catch (IOException ioe2) { ioe2.getMessage (); }
+                    if (lock != null) {
+                        lock.release ();
+                    }
+                    fos.close ();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace ();
+                }
             }
         }
     }

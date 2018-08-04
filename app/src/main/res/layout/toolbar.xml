@@ -6,6 +6,7 @@
     android:background="@color/colorPrimary"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
     <RelativeLayout
+        android:id="@+id/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="4dp">
@@ -14,12 +15,12 @@
             android:id="@+id/toolbar_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/toolbar_back_button"
             android:layout_toRightOf="@+id/toolbar_back_button"
-            android:text="Main"
+            android:text="Diary"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textSize="24sp" />
 
@@ -30,6 +31,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:visibility="gone"
             app:srcCompat="?attr/actionModeCloseDrawable" />
 
         <android.support.v7.widget.AppCompatImageView
