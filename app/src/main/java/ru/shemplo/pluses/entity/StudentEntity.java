@@ -3,6 +3,8 @@ package ru.shemplo.pluses.entity;
 
 public class StudentEntity implements MyEntity {
 
+    private static final long serialVersionUID = 0L;
+
     private final String FIRST_NAME, LAST_NAME;
     public final int ID;
 
