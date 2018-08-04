@@ -6,13 +6,9 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Stack;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.network.DataProvider;
@@ -24,7 +20,7 @@ public class DiaryMainActivity extends AppCompatActivity {
 
     public static int group = -1, student = -1;
 
-    private Toolbar toolbar;
+    private ToolbarManager toolbarManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +30,9 @@ public class DiaryMainActivity extends AppCompatActivity {
         startService(new Intent(this, DataPullService.class));
 
         setContentView(R.layout.frame_layout);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbarManager = new ToolbarManager(this);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            int depth = 0;
-            Stack<CharSequence> stack = new Stack<>();
-
             @Override
             public void onBackStackChanged() {
                 Fragment fragment = getFragmentManager().findFragmentById(R.id.main_frame);
@@ -50,60 +43,24 @@ public class DiaryMainActivity extends AppCompatActivity {
                     student = -1;
                 }
 
-                int newDepth = getFragmentManager().getBackStackEntryCount();
-
-                if (depth < newDepth) {
-                    stack.push(getHeading());
-                } else if (depth > newDepth){
-                    stack.pop();
-                    setHeading(stack.peek());
-                }
-                depth = newDepth;
+                toolbarManager.setDepth(getFragmentManager().getBackStackEntryCount());
             }
         });
 
-        switchFragment(R.id.group_recycler_view, 0, "Diary");
+        findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+        DataProvider provider = new DataProvider(this);
+        GroupsFragment groupsFragment = new GroupsFragment();
+        groupsFragment.setContext(this);
+        groupsFragment.setData(provider.getGroups());
+        getFragmentManager().beginTransaction()
+                .replace(R.id.main_frame, groupsFragment)
+                .commit();
+        findViewById(R.id.progress_bar).setVisibility(View.GONE);
 
-
-        toolbar.findViewById(R.id.toolbar_back_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getFragmentManager().getBackStackEntryCount() > 1) {
-                    getFragmentManager().popBackStack();
-                }
-            }
-        });
-
-        //setSupportActionBar(toolbar);
-
-        findViewById(R.id.toolbar_update_button).setOnClickListener(
-            new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Fragment fragment = getFragmentManager().findFragmentById(R.id.main_frame);
-                    Toast toast = Toast.makeText (DiaryMainActivity.page,
-                        "Update button clicked", Toast.LENGTH_SHORT);
-                    toast.show ();
-                    if (fragment == null) {
-                        Log.e("ERROR", "Cannot update, fragment is null");
-                        return;
-                    }
-                    if (group == -1) {
-                        Log.i("DMA", "Update groups");
-                        ((GroupsFragment) fragment).updateData();
-                    } else if (student == -1) {
-                        Log.i("DMA", "Update students");
-                        ((StudentsFragment) fragment).updateData(group);
-                    } else {
-                        Log.i("DMA", "Update topics");
-                        ((TopicsFragment) fragment).updateData(student);
-                    }
-                }
-
-            });
     }
 
     public void switchFragment(int fragment, int id, CharSequence heading) {
+        findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
         DataProvider provider = new DataProvider(this);
         Fragment newFragment;
         switch (fragment) {
@@ -141,15 +98,9 @@ public class DiaryMainActivity extends AppCompatActivity {
                 .replace(R.id.main_frame, newFragment)
                 .commit();
 
-        setHeading(heading);
-    }
+        toolbarManager.push(heading);
 
-    private void setHeading(CharSequence s) {
-        ((TextView)toolbar.findViewById(R.id.toolbar_text)).setText(s);
-    }
-
-    private CharSequence getHeading() {
-        return ((TextView)toolbar.findViewById(R.id.toolbar_text)).getText();
+        findViewById(R.id.progress_bar).setVisibility(View.GONE);
     }
 
 }
