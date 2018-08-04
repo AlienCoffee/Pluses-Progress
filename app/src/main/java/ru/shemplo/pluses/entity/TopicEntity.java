@@ -3,6 +3,8 @@ package ru.shemplo.pluses.entity;
 
 public class TopicEntity implements MyEntity {
 
+    private static final long serialVersionUID = 0L;
+
     private final String TITLE;
     public final int ID;
 
@@ -22,4 +24,5 @@ public class TopicEntity implements MyEntity {
     public int getID () {
         return ID;
     }
+
 }

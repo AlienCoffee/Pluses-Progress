@@ -54,6 +54,8 @@ public class DataSupplier {
             for (int i = 0; i < rest.size (); i++) {
                 oos.writeObject (rest.get (i));
             }
+
+            fos.flush ();
         } catch (IOException ioe) {
             ioe.printStackTrace ();
         } finally {

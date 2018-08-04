@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class TryEntity implements Serializable {
 
+    private static final long serialVersionUID = 0L;
+
     public final int STUDENT, GROUP, TOPIC, TASK, VERDICT;
 
     public TryEntity (int studentID, int groupID, int topicID, int taskID, int verdict) {

@@ -431,12 +431,19 @@ public class DataProvider {
 
         List <TryEntity> different = new ArrayList <> ();
         for (TryEntity attempt : localTries) {
+            boolean wasFound = false;
             for (int i = 0; i < tries.size (); i++) {
                 Trio <Integer, Integer, Boolean> trio = tries.get (i);
                 if (attempt.TOPIC == trio.F && attempt.TASK == trio.S
                         && attempt.VERDICT != (trio.T ? 1 : 0)) {
                     different.add (attempt);
+                    wasFound = true;
+                    break;
                 }
+            }
+
+            if (!wasFound) {
+                different.add (attempt);
             }
         }
         Log.i ("DP", "Dif: " + different.toString ());
