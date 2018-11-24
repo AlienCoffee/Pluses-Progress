@@ -3,16 +3,13 @@ package ru.shemplo.pluses.layout;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import ru.shemplo.pluses.R;
 import ru.shemplo.pluses.network.DataProvider;
-import ru.shemplo.pluses.network.service.DataPullService;
 
 public class DiaryMainActivity extends AppCompatActivity {
 
@@ -26,8 +23,6 @@ public class DiaryMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DiaryMainActivity.page = this;
-
-        startService(new Intent(this, DataPullService.class));
 
         setContentView(R.layout.frame_layout);
         toolbarManager = new ToolbarManager(this);
@@ -53,8 +48,8 @@ public class DiaryMainActivity extends AppCompatActivity {
         groupsFragment.setContext(this);
         groupsFragment.setData(provider.getGroups());
         getFragmentManager().beginTransaction()
-                .replace(R.id.main_frame, groupsFragment)
-                .commit();
+                            .replace(R.id.main_frame, groupsFragment)
+                            .commit();
         findViewById(R.id.progress_bar).setVisibility(View.GONE);
 
     }
