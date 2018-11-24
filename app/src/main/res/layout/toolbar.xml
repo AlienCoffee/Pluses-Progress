@@ -38,16 +38,22 @@
             android:id="@+id/toolbar_update_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/toolbar_update_label"
+            android:layout_toStartOf="@id/toolbar_update_label"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            app:srcCompat="@android:drawable/stat_notify_sync" />
+        <TextView
+            android:id="@+id/toolbar_update_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
-            app:srcCompat="@android:drawable/stat_notify_sync" />
-
-
+            android:text="Sync"
+            app:srcCompat="@android:drawable/stat_notify_sync"/>
     </RelativeLayout>
-
-
-
 </android.support.v7.widget.Toolbar>

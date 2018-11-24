@@ -5,9 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +32,33 @@ public class ToolbarManager {
                     context.getFragmentManager().popBackStack();
                 }
             }
+        });
+        toolbar.findViewById (R.id.toolbar_update_label).setOnClickListener (
+            new View.OnClickListener () {
+                // TODO: infer to common instance of ClickListener with @toolbar_update_button
+                @Override
+                public void onClick (View view) {
+                    context.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+                    Fragment fragment = context.getFragmentManager().findFragmentById(R.id.main_frame);
+                    Toast toast = Toast.makeText(DiaryMainActivity.page,
+                            "Update button clicked", Toast.LENGTH_SHORT);
+                    toast.show();
+                    if (fragment == null) {
+                        Log.e("ERROR", "Cannot update, fragment is null");
+                        return;
+                    }
+                    if (DiaryMainActivity.group == -1) {
+                        Log.i("DMA", "Update groups");
+                        ((GroupsFragment) fragment).updateData();
+                    } else if (DiaryMainActivity.student == -1) {
+                        Log.i("DMA", "Update students");
+                        ((StudentsFragment) fragment).updateData(DiaryMainActivity.group);
+                    } else {
+                        Log.i("DMA", "Update topics");
+                        ((TopicsFragment) fragment).updateData(DiaryMainActivity.student);
+                    }
+                    context.findViewById(R.id.progress_bar).setVisibility(View.GONE);
+                }
         });
 
         toolbar.findViewById(R.id.toolbar_update_button).setOnClickListener(
@@ -83,8 +108,7 @@ public class ToolbarManager {
             toolbar.findViewById(R.id.toolbar_back_button).setVisibility(View.VISIBLE);
         }
         stack.push(getHeading());
-        size++;
-        setHeading(name);
+        size++; setHeading(name);
         //Log.e("tmp_psh1", stack.toString());
     }
 
@@ -95,6 +119,5 @@ public class ToolbarManager {
     private CharSequence getHeading() {
         return ((TextView) toolbar.findViewById(R.id.toolbar_text)).getText();
     }
-
 
 }
